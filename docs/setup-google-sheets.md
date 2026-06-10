@@ -41,6 +41,9 @@ Para cargar resultados: agregá filas en `Resultados` (la columna `foto` lleva s
 nombre del archivo subido a `assets/results/` del sitio). Las inscripciones aparecen
 solas en la pestaña `Inscripciones`.
 
+Ojo: el nombre en `Torneos` (ej: "YACS Córdoba") y el nombre en `Resultados` (ej: "YACS Córdoba 06/12")
+son independientes — en Resultados conviene incluir la fecha para distinguir las ediciones.
+
 ## Probar que todo funciona
 1. En `Torneos`, poné un torneo con estado `proximo` y cupo_maximo 2.
 2. En la web, inscribite con un nombre y un Konami ID de prueba → debe decir "✓ Inscripción confirmada" y aparecer la fila en `Inscripciones`.
