@@ -1186,7 +1186,7 @@ git commit -m "feat: tournaments page with live capacity and registration form"
 <section id="grilla-top" class="py-4"></section>
 
 <!-- Lightbox -->
-<div id="lightbox" class="fixed inset-0 z-50 hidden items-center justify-center bg-noche/95 p-4" role="dialog" aria-modal="true" aria-label="Foto ampliada">
+<div id="lightbox" class="fixed inset-0 z-50 hidden items-center justify-center bg-noche/95 p-4" role="dialog" aria-modal="true" aria-label="Foto ampliada" tabindex="-1">
   <button id="cerrar-lightbox" class="absolute right-4 top-4 rounded-full border border-borde bg-tinta px-4 py-2 font-body text-sm text-white hover:border-primario" aria-label="Cerrar">✕ Cerrar</button>
   <img id="lightbox-img" src="" alt="" class="max-h-[90vh] max-w-full rounded-xl object-contain" />
 </div>
@@ -1204,11 +1204,12 @@ const MEDALLAS = { 1: '🥇', 2: '🥈', 3: '🥉' };
 function tarjeta(r, destacada = false) {
   const medalla = MEDALLAS[Number(r.puesto)] ?? `#${esc(r.puesto)}`;
   const borde = Number(r.puesto) === 1 ? 'border-oro/60 shadow-glow-violeta' : 'border-borde shadow-card';
+  const altText = `Decklist de ${esc(r.nombre)} (Top ${esc(r.puesto)})`;
   return `
-    <button type="button" data-foto="${esc(src(r.foto))}" data-nombre="${esc(r.nombre)}"
+    <button type="button" data-foto="${esc(src(r.foto))}" data-alt="${altText}"
       class="tarjeta-resultado group block w-full rounded-2xl border ${borde} bg-tinta/70 p-3 text-left hover:border-primario">
       <div class="foto-marco ${destacada ? 'h-72 sm:h-96' : 'h-56'} rounded-xl">
-        <img src="${esc(src(r.foto))}" alt="Decklist de ${esc(r.nombre)}" loading="lazy" class="h-full w-full rounded-xl object-cover object-top" />
+        <img src="${esc(src(r.foto))}" alt="${altText}" loading="${destacada ? 'eager' : 'lazy'}"${destacada ? ' fetchpriority="high"' : ''} class="h-full w-full rounded-xl object-cover object-top" />
       </div>
       <div class="px-2 pb-1 pt-3">
         <p class="font-display ${destacada ? 'text-xl' : 'text-base'} font-bold italic text-white">${medalla} ${esc(r.nombre)}</p>
@@ -1230,13 +1231,6 @@ function render(resultados) {
     ? `<h2 class="font-display text-xl font-bold italic text-white" style="letter-spacing:-0.03em;">Top ${podio.length + 1}–${resultados.length}</h2>
        <div class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">${resto.map((r) => tarjeta(r)).join('')}</div>`
     : '';
-  for (const btn of document.querySelectorAll('.tarjeta-resultado')) {
-    btn.addEventListener('click', () => {
-      $('lightbox-img').src = btn.dataset.foto;
-      $('lightbox-img').alt = `Decklist de ${btn.dataset.nombre}`;
-      $('lightbox').classList.replace('hidden', 'flex');
-    });
-  }
 }
 
 const grupos = groupResultados(await loadResultados());
@@ -1252,10 +1246,26 @@ if (!nombres.length) {
   sel.addEventListener('change', () => render(grupos[sel.value]));
 }
 
-const cerrar = () => $('lightbox').classList.replace('flex', 'hidden');
+let ultimaTarjeta = null;
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.tarjeta-resultado');
+  if (!btn) return;
+  ultimaTarjeta = btn;
+  $('lightbox-img').src = btn.dataset.foto;
+  $('lightbox-img').alt = btn.dataset.alt || '';
+  $('lightbox').classList.replace('hidden', 'flex');
+  $('cerrar-lightbox').focus();
+});
+
+const cerrar = () => {
+  $('lightbox').classList.replace('flex', 'hidden');
+  ultimaTarjeta?.focus();
+};
 $('cerrar-lightbox').addEventListener('click', cerrar);
 $('lightbox').addEventListener('click', (e) => { if (e.target === $('lightbox')) cerrar(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrar(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('lightbox').classList.contains('hidden')) cerrar();
+});
 ```
 
 Load from `resultados.html`: `<script type="module" src="js/resultados.js"></script>`
