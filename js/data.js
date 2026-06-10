@@ -11,6 +11,7 @@ export const FALLBACK_TORNEOS = [{
   reglas: 'Banlist TCG vigente',
   precio: '',
   premios: 'Premios para el top',
+  alias: '',
   cupo_maximo: '32',
   estado: 'finalizado',
 }];
@@ -28,9 +29,15 @@ export const FALLBACK_RESULTADOS = [
 ];
 
 // ---- Selectores puros ----
+export function pickProximos(torneos) {
+  return torneos.filter((t) => {
+    const e = (t.estado ?? '').trim().toLowerCase();
+    return e === 'proximo' || e === 'próximo';
+  });
+}
+
 export function pickProximo(torneos) {
-  return torneos.find((t) => (t.estado ?? '').trim().toLowerCase() === 'proximo'
-    || (t.estado ?? '').trim().toLowerCase() === 'próximo') ?? null;
+  return pickProximos(torneos)[0] ?? null;
 }
 
 // El orden de los grupos sigue el orden de las filas del CSV: cargar los torneos de más viejo a más nuevo.
@@ -66,3 +73,12 @@ export const loadResultados = () => fetchCsv(RESULTADOS_CSV_URL, FALLBACK_RESULT
 // pero escapar evita sorpresas si alguna celda trae HTML).
 export const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// Firma del sitio (visible en la consola del navegador)
+if (typeof window !== 'undefined') {
+  console.log(
+    '%c🐗 BUTA TCG',
+    'color:#5b8cff;font-weight:bold;font-size:14px',
+    '— sitio original. ¿Sos dev? Escribinos: instagram.com/butatcg'
+  );
+}

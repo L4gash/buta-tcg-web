@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pickProximo, groupResultados, FALLBACK_TORNEOS, FALLBACK_RESULTADOS, esc } from '../js/data.js';
+import { pickProximo, pickProximos, groupResultados, FALLBACK_TORNEOS, FALLBACK_RESULTADOS, esc } from '../js/data.js';
 
 test('pickProximo returns first torneo with estado proximo, else null', () => {
   assert.equal(pickProximo([{ estado: 'finalizado' }]), null);
@@ -30,4 +30,20 @@ test('esc neutraliza HTML y atributos', () => {
   assert.equal(esc('<img src=x onerror=alert(1)>'), '&lt;img src=x onerror=alert(1)&gt;');
   assert.equal(esc('a"b&c'), 'a&quot;b&amp;c');
   assert.equal(esc(null), '');
+});
+
+test('pickProximos returns all torneos with estado proximo, in sheet order', () => {
+  const t = [
+    { nombre: 'A', estado: 'finalizado' },
+    { nombre: 'B', estado: 'proximo' },
+    { nombre: 'C', estado: 'Próximo ' },
+    { nombre: 'D', estado: 'proximo' },
+  ];
+  assert.deepEqual(pickProximos(t).map((x) => x.nombre), ['B', 'C', 'D']);
+  assert.deepEqual(pickProximos([{ estado: 'finalizado' }]), []);
+  assert.deepEqual(pickProximos([]), []);
+});
+
+test('fallback torneo has alias field', () => {
+  assert.equal('alias' in FALLBACK_TORNEOS[0], true);
 });
