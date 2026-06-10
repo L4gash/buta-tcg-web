@@ -162,12 +162,15 @@ const n = nums.length ? Math.max(...nums) + 1 : 1;
 const out = join(DIR, `screenshot-${n}${label ? `-${label}` : ''}.png`);
 
 const browser = await puppeteer.launch();
-const page = await browser.newPage();
-await page.setViewport({ width, height, deviceScaleFactor: 1 });
-await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
-await new Promise((r) => setTimeout(r, 500));
-await page.screenshot({ path: out, fullPage: true });
-await browser.close();
+try {
+  const page = await browser.newPage();
+  await page.setViewport({ width, height, deviceScaleFactor: 1 });
+  await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
+  await new Promise((r) => setTimeout(r, 500));
+  await page.screenshot({ path: out, fullPage: true });
+} finally {
+  await browser.close();
+}
 console.log(out);
 ```
 
