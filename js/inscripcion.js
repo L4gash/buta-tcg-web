@@ -62,7 +62,14 @@ function tarjetaTorneo(t) {
 }
 
 function renderTorneos() {
-  $('lista-torneos').innerHTML = proximos.map(tarjetaTorneo).join('');
+  const el = $('lista-torneos');
+  // Ajustamos la clase de columnas al número real de torneos para evitar
+  // columnas vacías cuando hay menos de 3 (e.g. 2 en lg queda lopsided).
+  const cols = proximos.length >= 3 ? 'grid gap-5 md:grid-cols-2 lg:grid-cols-3'
+    : proximos.length === 2 ? 'grid gap-5 md:grid-cols-2'
+    : 'grid gap-5';
+  el.className = cols;
+  el.innerHTML = proximos.map(tarjetaTorneo).join('');
 }
 
 function renderSelector() {

@@ -103,11 +103,12 @@
 
     try {
       const torneos = await loadTorneos();
-      const proximos = pickProximos(torneos).slice(0, 3);
+      const proximos = pickProximos(torneos).slice(0, 3); // el inicio muestra máx. 3; torneos.html los muestra todos
       document.getElementById('prox-titulo').textContent = proximos.length > 1 ? 'Próximos torneos' : 'Próximo torneo';
       const cont = document.getElementById('proximo-torneo');
+      const gridCols = proximos.length >= 3 ? ' sm:grid-cols-2 lg:grid-cols-3' : proximos.length === 2 ? ' sm:grid-cols-2' : '';
       cont.innerHTML = proximos.length
-        ? `<div class="grid gap-4 ${proximos.length > 1 ? 'sm:grid-cols-2 lg:grid-cols-3' : ''}">` + proximos.map((t) => `
+        ? `<div class="grid gap-4${gridCols}">` + proximos.map((t) => `
            <a href="torneos.html" class="block rounded-2xl border border-primario/40 bg-tinta/70 p-6 shadow-glow-azul hover:opacity-90">
              <p class="font-display text-xl font-bold italic text-white">${esc(t.nombre)}</p>
              <p class="mt-2 font-body text-humo">📅 ${fmtFecha(t.fecha)} · ${esc(t.hora)} hs<br />📍 ${esc(t.lugar)}</p>
