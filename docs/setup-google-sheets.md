@@ -64,3 +64,9 @@ Si tu planilla ya estaba funcionando con la versión anterior, hacé esto una so
    (Sin este paso, el script viejo sigue corriendo y los comentarios no se guardan.)
 5. Ahora podés tener varios torneos con estado `proximo` a la vez: la web los muestra todos
    y cada jugador elige a cuál inscribirse. Cargalos en orden de fecha (la web respeta el orden de las filas).
+
+⚠️ **REGLA DE ORO: cada torneo necesita un nombre ÚNICO** (incluí la fecha, ej: "Buta Córdoba 13/06").
+Todo el sistema identifica los torneos por su nombre: si dos torneos activos se llaman igual,
+las inscripciones se mezclan, el cupo se comparte y un jugador no puede anotarse a los dos.
+Si ya pasó: renombrá los torneos en `Torneos` y actualizá la columna `torneo` de las
+inscripciones existentes en `Inscripciones` (Ctrl+H, buscar y reemplazar) para que coincidan.
