@@ -5,5 +5,5 @@
 const SHEET_ID = '1pgf7hrbGzNFPQ3bkgf_R5ixmWh4Ezlg6N-KhJMl0DJ8';
 export const TORNEOS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Torneos`;
 export const RESULTADOS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Resultados`;
-export const APPS_SCRIPT_URL = '';
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwdiSGsebn7WSb2y8MSvIvLpO98imO2skiLUibwrB4jQBV2m-QT311tsNq_5Qe6InOG/exec';
 export const INSTAGRAM_URL = 'https://www.instagram.com/butatcg/';
