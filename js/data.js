@@ -11,9 +11,9 @@ export const FALLBACK_TORNEOS = [{
   reglas: 'Banlist TCG vigente',
   precio: '',
   premios: 'Premios para el top',
-  alias: '',
   cupo_maximo: '32',
   estado: 'finalizado',
+  alias: '',
 }];
 
 const foto = (f) => `assets/results/${f}`;

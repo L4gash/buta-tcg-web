@@ -27,6 +27,20 @@ function contar_(torneo) {
 
 function doGet(e) {
   try {
+    if (e.parameter.action === 'counts') {
+      const proximos = filas_(HOJA_TORNEOS).rows.filter(function (r) {
+        const est = String(r.estado).toLowerCase();
+        return est.indexOf('proximo') === 0 || est.indexOf('próximo') === 0;
+      });
+      const insc = filas_(HOJA_INSCRIPCIONES).rows;
+      const counts = {};
+      const cupos = {};
+      proximos.forEach(function (t) {
+        counts[t.nombre] = insc.filter(function (r) { return r.torneo === t.nombre; }).length;
+        cupos[t.nombre] = Number(t.cupo_maximo);
+      });
+      return json_({ ok: true, counts: counts, cupos: cupos });
+    }
     if (e.parameter.action === 'count') {
       const torneo = e.parameter.torneo || '';
       const t = filas_(HOJA_TORNEOS).rows.find(r => r.nombre === torneo);
@@ -49,6 +63,7 @@ function doPost(e) {
     const nombre = String(datos.nombre || '').trim();
     const konamiId = String(datos.konami_id || '').trim();
     const torneo = String(datos.torneo || '').trim();
+    const comentario = String(datos.comentario || '').replace(/[\r\n]+/g, ' ').trim().slice(0, 100);
 
     if (nombre.length < 3 || !/^\d{10}$/.test(konamiId) || !torneo) {
       return json_({ ok: false, error: 'datos_invalidos' });
@@ -69,7 +84,7 @@ function doPost(e) {
       return json_({ ok: false, error: 'lleno' });
     }
 
-    insc.sheet.appendRow([new Date(), torneo, nombre, "'" + konamiId]);
+    insc.sheet.appendRow([new Date(), torneo, nombre, "'" + konamiId, comentario]);
     return json_({ ok: true, count: delTorneo.length + 1, cupo: Number(t.cupo_maximo) });
   } catch (err) {
     return json_({ ok: false, error: 'config_error' });

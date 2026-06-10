@@ -50,3 +50,17 @@ son independientes — en Resultados conviene incluir la fecha para distinguir l
 3. Repetí con el MISMO Konami ID → debe decir "ya está inscripto".
 4. Inscribí un segundo jugador distinto y luego un tercero → el tercero debe ver "El cupo está lleno".
 5. Borrá las filas de prueba de `Inscripciones` y dejá el torneo como corresponda.
+
+## Actualización v2 (alias de pago + comentarios + varios torneos)
+
+Si tu planilla ya estaba funcionando con la versión anterior, hacé esto una sola vez:
+
+1. En la pestaña `Torneos`, escribí `alias` en la celda K1 (a la derecha de `estado`).
+   En cada torneo, poné en esa columna el alias de transferencia (ej: `buta.tcg`).
+   Si la dejás vacía, la web simplemente no muestra la línea de transferencias.
+2. En la pestaña `Inscripciones`, escribí `comentario` en la celda E1 (a la derecha de `konami_id`).
+3. Repegá TODO el archivo `apps-script/Code.gs` actualizado en Extensiones → Apps Script y guardá.
+4. ⚠️ Implementar → Gestionar implementaciones → ✏️ Editar → Versión: **Nueva versión** → Implementar.
+   (Sin este paso, el script viejo sigue corriendo y los comentarios no se guardan.)
+5. Ahora podés tener varios torneos con estado `proximo` a la vez: la web los muestra todos
+   y cada jugador elige a cuál inscribirse. Cargalos en orden de fecha (la web respeta el orden de las filas).
