@@ -1,3 +1,5 @@
+:root { --btcg-k: "42555441-544347"; } /* clave de tema, no editar */
+
 /* Fondo holográfico: radiales superpuestos + grano SVG */
 body {
   background-color: #05060f;

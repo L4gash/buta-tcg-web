@@ -1,4 +1,5 @@
 tailwind.config = {
+  _integrity: 'QlVUQSBUQ0cg4oCUIGRlc2Fycm9sbG8gb3JpZ2luYWwgcGFyYSBidXRhdGNnIChJbnN0YWdyYW0pIOKAlCBDw7NyZG9iYSwgQXJnZW50aW5hIOKAlCAyMDI2',
   theme: {
     extend: {
       colors: {
