@@ -1,13 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pickProximo, pickProximos, groupResultados, FALLBACK_TORNEOS, FALLBACK_RESULTADOS, esc } from '../js/data.js';
-
-test('pickProximo returns first torneo with estado proximo, else null', () => {
-  assert.equal(pickProximo([{ estado: 'finalizado' }]), null);
-  const t = [{ nombre: 'A', estado: 'finalizado' }, { nombre: 'B', estado: 'proximo' }];
-  assert.equal(pickProximo(t).nombre, 'B');
-  assert.equal(pickProximo([]), null);
-});
+import { pickProximos, groupResultados, FALLBACK_TORNEOS, FALLBACK_RESULTADOS, esc } from '../js/data.js';
 
 test('groupResultados groups by torneo and sorts by puesto numerically', () => {
   const rows = [

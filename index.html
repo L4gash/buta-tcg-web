@@ -93,7 +93,7 @@
   </footer>
 
   <script type="module">
-    import { loadTorneos, loadResultados, pickProximo, groupResultados, esc } from './js/data.js';
+    import { loadTorneos, loadResultados, pickProximos, groupResultados, esc } from './js/data.js';
 
     const fmtFecha = (iso) => {
       const [y, m, d] = (iso ?? '').split('-').map(Number);
@@ -103,14 +103,16 @@
 
     try {
       const torneos = await loadTorneos();
-      const prox = pickProximo(torneos);
+      const proximos = pickProximos(torneos).slice(0, 3);
+      document.getElementById('prox-titulo').textContent = proximos.length > 1 ? 'Próximos torneos' : 'Próximo torneo';
       const cont = document.getElementById('proximo-torneo');
-      cont.innerHTML = prox
-        ? `<a href="torneos.html" class="block rounded-2xl border border-primario/40 bg-tinta/70 p-6 shadow-glow-azul hover:opacity-90 sm:p-8">
-             <p class="font-display text-xl font-bold italic text-white">${esc(prox.nombre)}</p>
-             <p class="mt-2 font-body text-humo">📅 ${fmtFecha(prox.fecha)} · ${esc(prox.hora)} hs &nbsp; 📍 ${esc(prox.lugar)}</p>
-             <p class="mt-3 inline-block rounded-full bg-primario/15 px-4 py-1.5 font-body text-sm font-semibold text-primario-glow">Ver detalles e inscribirme →</p>
-           </a>`
+      cont.innerHTML = proximos.length
+        ? `<div class="grid gap-4 ${proximos.length > 1 ? 'sm:grid-cols-2 lg:grid-cols-3' : ''}">` + proximos.map((t) => `
+           <a href="torneos.html" class="block rounded-2xl border border-primario/40 bg-tinta/70 p-6 shadow-glow-azul hover:opacity-90">
+             <p class="font-display text-xl font-bold italic text-white">${esc(t.nombre)}</p>
+             <p class="mt-2 font-body text-humo">📅 ${fmtFecha(t.fecha)} · ${esc(t.hora)} hs<br />📍 ${esc(t.lugar)}</p>
+             <p class="mt-3 inline-block rounded-full bg-primario/15 px-4 py-1.5 font-body text-sm font-semibold text-primario-glow">Ver e inscribirme →</p>
+           </a>`).join('') + `</div>`
         : `<div class="rounded-2xl border border-borde bg-tinta/70 p-6 shadow-card sm:p-8">
              <p class="font-display text-lg font-semibold text-white">Próximamente nuevo torneo</p>
              <p class="mt-2 font-body text-humo">Seguinos en <a href="https://www.instagram.com/butatcg/" target="_blank" rel="noopener noreferrer" class="text-primario-glow underline hover:opacity-80">Instagram</a> para enterarte antes que nadie.</p>

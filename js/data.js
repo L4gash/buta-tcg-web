@@ -36,10 +36,6 @@ export function pickProximos(torneos) {
   });
 }
 
-export function pickProximo(torneos) {
-  return pickProximos(torneos)[0] ?? null;
-}
-
 // El orden de los grupos sigue el orden de las filas del CSV: cargar los torneos de más viejo a más nuevo.
 export function groupResultados(rows) {
   const out = {};
