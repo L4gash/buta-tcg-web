@@ -1,0 +1,60 @@
+import { parseCsv } from './csv.js';
+import { TORNEOS_CSV_URL, RESULTADOS_CSV_URL } from './config.js';
+
+// ---- Datos de respaldo (se muestran si la planilla no está configurada o no responde) ----
+export const FALLBACK_TORNEOS = [{
+  nombre: 'YACS Córdoba',
+  fecha: '2025-12-06',
+  hora: '10:00',
+  lugar: 'Córdoba, Argentina',
+  formato: 'Avanzado TCG · suizo + top cut',
+  reglas: 'Banlist TCG vigente',
+  precio: '',
+  premios: 'Premios para el top',
+  cupo_maximo: '32',
+  estado: 'finalizado',
+}];
+
+const foto = (f) => `assets/results/${f}`;
+export const FALLBACK_RESULTADOS = [
+  { torneo: 'YACS Córdoba 06/12', puesto: '1', nombre: 'Mariano Castro', deck: '—', foto: foto('mariano-castro-top-1.jpg') },
+  { torneo: 'YACS Córdoba 06/12', puesto: '2', nombre: 'Juan Gordillo', deck: '—', foto: foto('juan-gordillo-top-2.jpg') },
+  { torneo: 'YACS Córdoba 06/12', puesto: '3', nombre: 'Pedro Torres', deck: '—', foto: foto('pedro-torres-top-3.jpg') },
+  { torneo: 'YACS Córdoba 06/12', puesto: '4', nombre: 'Juan Pablo Ynfantes', deck: '—', foto: foto('juan-pablo-ynfantes-top-4.jpg') },
+  { torneo: 'YACS Córdoba 06/12', puesto: '5', nombre: 'Rodo', deck: '—', foto: foto('rodo-top-5.jpg') },
+  { torneo: 'YACS Córdoba 06/12', puesto: '6', nombre: 'Ricardo Jara', deck: '—', foto: foto('ricardo-jara-top-6.jpg') },
+  { torneo: 'YACS Córdoba 06/12', puesto: '7', nombre: 'Alexis Juncos', deck: '—', foto: foto('alexis-juncos-top-7.jpg') },
+  { torneo: 'YACS Córdoba 06/12', puesto: '8', nombre: 'Enzo Alfonzo', deck: '—', foto: foto('enzo-alfonzo-top-8.jpg') },
+];
+
+// ---- Selectores puros ----
+export function pickProximo(torneos) {
+  return torneos.find((t) => (t.estado ?? '').trim().toLowerCase() === 'proximo'
+    || (t.estado ?? '').trim().toLowerCase() === 'próximo') ?? null;
+}
+
+export function groupResultados(rows) {
+  const out = {};
+  for (const r of rows) (out[r.torneo] ??= []).push(r);
+  for (const k of Object.keys(out)) out[k].sort((a, b) => Number(a.puesto) - Number(b.puesto));
+  return out;
+}
+
+// ---- Carga remota con fallback ----
+async function fetchCsv(url, fallback) {
+  if (!url) return fallback;
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!res.ok) return fallback;
+    const rows = parseCsv(await res.text());
+    return rows.length ? rows : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export const loadTorneos = () => fetchCsv(TORNEOS_CSV_URL, FALLBACK_TORNEOS);
+export const loadResultados = () => fetchCsv(RESULTADOS_CSV_URL, FALLBACK_RESULTADOS);
