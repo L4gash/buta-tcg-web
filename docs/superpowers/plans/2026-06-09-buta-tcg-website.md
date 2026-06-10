@@ -981,16 +981,18 @@ git commit -m "feat: home page with hero, next tournament, last champion"
       <div>
         <label for="nombre" class="font-body text-sm font-semibold text-humo">Nombre completo</label>
         <input id="nombre" name="nombre" type="text" autocomplete="name" required
+          aria-describedby="error-nombre" aria-invalid="false"
           class="mt-1.5 w-full rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/50 focus:border-primario"
           placeholder="Ej: Yugi Muto" />
-        <p data-error-for="nombre" class="mt-1.5 hidden font-body text-sm text-red-400">Ingresá tu nombre completo (mínimo 3 letras).</p>
+        <p id="error-nombre" role="alert" data-error-for="nombre" class="mt-1.5 hidden font-body text-sm text-red-400">Ingresá tu nombre completo (mínimo 3 letras).</p>
       </div>
       <div>
         <label for="konami-id" class="font-body text-sm font-semibold text-humo">Konami ID (10 dígitos)</label>
         <input id="konami-id" name="konami_id" type="text" inputmode="numeric" maxlength="10" required
+          aria-describedby="error-konami-id" aria-invalid="false"
           class="mt-1.5 w-full rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/50 focus:border-primario"
           placeholder="Ej: 0123456789" />
-        <p data-error-for="konami-id" class="mt-1.5 hidden font-body text-sm text-red-400">El Konami ID son exactamente 10 números (figura en tu tarjeta de Konami).</p>
+        <p id="error-konami-id" role="alert" data-error-for="konami-id" class="mt-1.5 hidden font-body text-sm text-red-400">El Konami ID son exactamente 10 números (figura en tu tarjeta de Konami).</p>
       </div>
       <button type="submit" id="btn-inscribir"
         class="rounded-full bg-gradient-to-r from-primario to-violeta px-8 py-3.5 font-display font-bold italic text-white shadow-glow-azul hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
@@ -1083,12 +1085,16 @@ if (!prox) {
   renderSinTorneo();
 } else {
   renderFicha(prox, null);
-  consultarCupos(prox.nombre).then((c) => { if (typeof c === 'number') renderFicha(prox, c); });
+  let inscripcionConfirmada = false;
+  consultarCupos(prox.nombre).then((c) => { if (typeof c === 'number' && !inscripcionConfirmada) renderFicha(prox, c); });
 
   if (!APPS_SCRIPT_URL) {
     $('form-inscripcion').innerHTML = `<p class="font-body leading-[1.7] text-humo">La inscripción online estará disponible muy pronto.
       Mientras tanto, anotate por <a href="${INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer" class="text-primario-glow underline hover:opacity-80">Instagram</a>.</p>`;
   } else {
+    $('konami-id').addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '');
+    });
     $('form-inscripcion').addEventListener('submit', async (ev) => {
       ev.preventDefault();
       const nombre = $('nombre').value;
@@ -1096,6 +1102,7 @@ if (!prox) {
       let valido = true;
       for (const [id, ok] of [['nombre', validarNombre(nombre)], ['konami-id', validarKonamiId(konamiId)]]) {
         document.querySelector(`[data-error-for="${id}"]`).classList.toggle('hidden', ok);
+        $(id).setAttribute('aria-invalid', ok ? 'false' : 'true');
         if (!ok) valido = false;
       }
       if (!valido) return;
@@ -1111,6 +1118,7 @@ if (!prox) {
         });
         const data = await res.json();
         if (data.ok) {
+          inscripcionConfirmada = true;
           mostrarMensaje('ok');
           $('form-inscripcion').reset();
           renderFicha(prox, data.count);

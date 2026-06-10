@@ -76,12 +76,16 @@ if (!prox) {
   renderSinTorneo();
 } else {
   renderFicha(prox, null);
-  consultarCupos(prox.nombre).then((c) => { if (typeof c === 'number') renderFicha(prox, c); });
+  let inscripcionConfirmada = false;
+  consultarCupos(prox.nombre).then((c) => { if (typeof c === 'number' && !inscripcionConfirmada) renderFicha(prox, c); });
 
   if (!APPS_SCRIPT_URL) {
     $('form-inscripcion').innerHTML = `<p class="font-body leading-[1.7] text-humo">La inscripción online estará disponible muy pronto.
       Mientras tanto, anotate por <a href="${INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer" class="text-primario-glow underline hover:opacity-80">Instagram</a>.</p>`;
   } else {
+    $('konami-id').addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '');
+    });
     $('form-inscripcion').addEventListener('submit', async (ev) => {
       ev.preventDefault();
       const nombre = $('nombre').value;
@@ -89,6 +93,7 @@ if (!prox) {
       let valido = true;
       for (const [id, ok] of [['nombre', validarNombre(nombre)], ['konami-id', validarKonamiId(konamiId)]]) {
         document.querySelector(`[data-error-for="${id}"]`).classList.toggle('hidden', ok);
+        $(id).setAttribute('aria-invalid', ok ? 'false' : 'true');
         if (!ok) valido = false;
       }
       if (!valido) return;
@@ -104,6 +109,7 @@ if (!prox) {
         });
         const data = await res.json();
         if (data.ok) {
+          inscripcionConfirmada = true;
           mostrarMensaje('ok');
           $('form-inscripcion').reset();
           renderFicha(prox, data.count);
