@@ -1,5 +1,6 @@
 // Minimal RFC-4180 CSV parser. First row is the header; returns array of objects.
 export function parseCsv(text) {
+  if (typeof text !== 'string') return [];
   const rows = [];
   let row = [], field = '', inQuotes = false;
   for (let i = 0; i < text.length; i++) {

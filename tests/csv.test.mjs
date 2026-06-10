@@ -24,3 +24,13 @@ test('handles newlines inside quoted fields', () => {
   const rows = parseCsv('a,b\n"línea 1\nlínea 2",x');
   assert.deepEqual(rows, [{ a: 'línea 1\nlínea 2', b: 'x' }]);
 });
+
+test('returns [] for non-string input', () => {
+  assert.deepEqual(parseCsv(null), []);
+  assert.deepEqual(parseCsv(undefined), []);
+});
+
+test('CRLF inside quoted fields preserves the \\r (RFC 4180)', () => {
+  const rows = parseCsv('a,b\n"línea 1\r\nlínea 2",x');
+  assert.deepEqual(rows, [{ a: 'línea 1\r\nlínea 2', b: 'x' }]);
+});
