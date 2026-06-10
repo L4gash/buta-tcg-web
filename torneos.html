@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Torneos — BUTA TCG</title>
+  <meta name="description" content="BUTA TCG organiza torneos de Yu-Gi-Oh! Trading Card Game en Córdoba, Argentina. Inscribite online y mirá los resultados." />
+  <link rel="icon" type="image/png" href="assets/logo-butatcg.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,600;1,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/custom.css" />
+</head>
+<body class="min-h-screen bg-noche font-body text-white antialiased">
+
+  <header class="sticky top-0 z-40 border-b border-borde/60 bg-noche/80 backdrop-blur-md">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3" aria-label="Principal">
+      <a href="index.html" class="flex items-center gap-2 hover:opacity-80">
+        <img src="assets/logo-butatcg.png" alt="Logo BUTA TCG" class="h-9 w-9 object-contain" />
+        <span class="font-display text-lg font-bold italic tracking-tight text-white">BUTA <span class="text-primario-glow">TCG</span></span>
+      </a>
+      <div class="flex items-center gap-1 font-body text-sm sm:gap-2">
+        <a href="index.html" class="rounded-md px-2 py-1.5 text-humo hover:text-primario-glow sm:px-3">Inicio</a>
+        <a href="torneos.html" aria-current="page" class="rounded-md px-2 py-1.5 text-white hover:text-primario-glow sm:px-3">Torneos</a>
+        <a href="resultados.html" class="rounded-md px-2 py-1.5 text-humo hover:text-primario-glow sm:px-3">Resultados</a>
+        <a href="nosotros.html" class="rounded-md px-2 py-1.5 text-humo hover:text-primario-glow sm:px-3">Nosotros</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-3xl px-4">
+
+    <section class="pb-4 pt-12 text-center">
+      <p class="font-display text-xs font-semibold uppercase tracking-[0.3em] text-violeta-glow">Próximo torneo</p>
+      <h1 class="texto-neon mt-3 font-display text-3xl font-bold italic text-white sm:text-5xl" style="letter-spacing:-0.03em;">Prepará tu mejor deck</h1>
+    </section>
+
+    <!-- FICHA (poblada por JS) -->
+    <section id="ficha-torneo" class="py-8">
+      <div class="skeleton h-64 w-full"></div>
+    </section>
+
+    <!-- INSCRIPCIÓN -->
+    <section id="seccion-inscripcion" class="py-8">
+      <div class="rounded-2xl border border-borde bg-tinta/70 p-6 shadow-card sm:p-8">
+        <h2 class="font-display text-2xl font-bold italic text-white" style="letter-spacing:-0.03em;">Inscripción</h2>
+        <form id="form-inscripcion" class="mt-6 flex flex-col gap-5" novalidate>
+          <div>
+            <label for="nombre" class="font-body text-sm font-semibold text-humo">Nombre completo</label>
+            <input id="nombre" name="nombre" type="text" autocomplete="name" required
+              class="mt-1.5 w-full rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/50 focus:border-primario"
+              placeholder="Ej: Yugi Muto" />
+            <p data-error-for="nombre" class="mt-1.5 hidden font-body text-sm text-red-400">Ingresá tu nombre completo (mínimo 3 letras).</p>
+          </div>
+          <div>
+            <label for="konami-id" class="font-body text-sm font-semibold text-humo">Konami ID (10 dígitos)</label>
+            <input id="konami-id" name="konami_id" type="text" inputmode="numeric" maxlength="10" required
+              class="mt-1.5 w-full rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/50 focus:border-primario"
+              placeholder="Ej: 0123456789" />
+            <p data-error-for="konami-id" class="mt-1.5 hidden font-body text-sm text-red-400">El Konami ID son exactamente 10 números (figura en tu tarjeta de Konami).</p>
+          </div>
+          <button type="submit" id="btn-inscribir"
+            class="rounded-full bg-gradient-to-r from-primario to-violeta px-8 py-3.5 font-display font-bold italic text-white shadow-glow-azul hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
+            Confirmar inscripción
+          </button>
+          <p id="mensaje-resultado" role="status" aria-live="polite" class="hidden rounded-lg px-4 py-3 font-body text-sm"></p>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="mt-20 border-t border-borde/60 py-10">
+    <div class="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-center font-body text-sm text-humo">
+      <a href="https://www.instagram.com/butatcg/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-full border border-borde bg-tinta px-5 py-2.5 font-semibold text-white shadow-card hover:border-primario hover:shadow-glow-azul">
+        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.9.2 2.3.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1.1.4 2.3.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.9-.4 2.3-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1.1.4-2.3.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.9-.2-2.3-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1.1-.4-2.3-.1-1.2-.1-1.6-.1-4.8s0-3.6.1-4.8c.1-1.2.2-1.9.4-2.3.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1.1-.4 2.3-.4 1.2-.1 1.6-.1 4.8-.1zm0 1.8c-3.1 0-3.5 0-4.7.1-1.1.1-1.7.2-2.1.4-.5.2-.9.4-1.2.8-.4.4-.6.7-.8 1.2-.2.4-.3 1-.4 2.1-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.7.4 2.1.2.5.4.9.8 1.2.4.4.7.6 1.2.8.4.2 1 .3 2.1.4 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.7-.2 2.1-.4.5-.2.9-.4 1.2-.8.4-.4.6-.7.8-1.2.2-.4.3-1 .4-2.1.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.7-.4-2.1-.2-.5-.4-.9-.8-1.2-.4-.4-.7-.6-1.2-.8-.4-.2-1-.3-2.1-.4-1.2-.1-1.6-.1-4.7-.1zm0 3.1a4.9 4.9 0 1 1 0 9.8 4.9 4.9 0 0 1 0-9.8zm0 8a3.1 3.1 0 1 0 0-6.2 3.1 3.1 0 0 0 0 6.2zm6.2-8.2a1.1 1.1 0 1 1-2.3 0 1.1 1.1 0 0 1 2.3 0z"/></svg>
+        @butatcg
+      </a>
+      <p>© 2026 BUTA TCG · Torneos de Yu-Gi-Oh! Trading Card Game · Córdoba, Argentina</p>
+      <p class="text-xs text-humo">Yu-Gi-Oh! es marca registrada de Konami. Este sitio no está afiliado a Konami.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="js/inscripcion.js"></script>
+
+</body>
+</html>
