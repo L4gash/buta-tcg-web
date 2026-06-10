@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BUTA TCG — Torneos de Yu-Gi-Oh! en Córdoba</title>
+  <meta name="description" content="BUTA TCG organiza torneos de Yu-Gi-Oh! Trading Card Game en Córdoba, Argentina. Inscribite online y mirá los resultados." />
+  <link rel="icon" type="image/png" href="assets/logo-butatcg.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,600;1,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/custom.css" />
+</head>
+<body class="min-h-screen bg-noche font-body text-white antialiased">
+
+  <header class="sticky top-0 z-40 border-b border-borde/60 bg-noche/80 backdrop-blur-md">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3" aria-label="Principal">
+      <a href="index.html" class="flex items-center gap-2 hover:opacity-80">
+        <img src="assets/logo-butatcg.png" alt="Logo BUTA TCG" class="h-9 w-9 object-contain" />
+        <span class="font-display text-lg font-bold italic tracking-tight text-white">BUTA <span class="text-primario-glow">TCG</span></span>
+      </a>
+      <div class="flex items-center gap-1 font-body text-sm sm:gap-2">
+        <a href="index.html" aria-current="page" class="rounded-md px-2 py-1.5 text-white hover:text-primario-glow sm:px-3">Inicio</a>
+        <a href="torneos.html" class="rounded-md px-2 py-1.5 text-humo hover:text-primario-glow sm:px-3">Torneos</a>
+        <a href="resultados.html" class="rounded-md px-2 py-1.5 text-humo hover:text-primario-glow sm:px-3">Resultados</a>
+        <a href="nosotros.html" class="rounded-md px-2 py-1.5 text-humo hover:text-primario-glow sm:px-3">Nosotros</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-4">
+
+    <!-- HERO -->
+    <section class="flex flex-col items-center pb-16 pt-14 text-center sm:pt-20">
+      <img src="assets/logo-butatcg.png" alt="" class="h-28 w-28 object-contain sm:h-36 sm:w-36" style="filter: drop-shadow(0 0 32px rgba(91,140,255,.5));" />
+      <p class="mt-6 font-display text-xs font-semibold uppercase tracking-[0.3em] text-violeta-glow">⚡ It's time to duel</p>
+      <h1 class="texto-neon mt-3 max-w-3xl font-display text-4xl font-bold italic leading-tight text-white sm:text-6xl" style="letter-spacing:-0.03em;">
+        Torneos de Yu-Gi-Oh! <span class="text-primario-glow">TCG</span> en Córdoba
+      </h1>
+      <p class="mt-5 max-w-xl font-body text-base leading-[1.7] text-humo sm:text-lg">
+        BUTA TCG organiza torneos presenciales con transmisión en vivo, premios y la mejor comunidad duelista de Córdoba.
+      </p>
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a href="torneos.html" class="rounded-full bg-gradient-to-r from-primario to-violeta px-8 py-3.5 font-display font-bold italic text-white shadow-glow-azul hover:opacity-90">Inscribirme al próximo torneo</a>
+        <a href="resultados.html" class="rounded-full border border-borde bg-tinta px-8 py-3.5 font-display font-semibold text-humo shadow-card hover:border-primario hover:text-white">Ver resultados</a>
+      </div>
+    </section>
+
+    <!-- PRÓXIMO TORNEO (poblado por JS) -->
+    <section aria-labelledby="prox-titulo" class="py-10">
+      <h2 id="prox-titulo" class="font-display text-2xl font-bold italic text-white" style="letter-spacing:-0.03em;">Próximo torneo</h2>
+      <div id="proximo-torneo" class="mt-4">
+        <div class="skeleton h-28 w-full"></div>
+      </div>
+    </section>
+
+    <!-- ÚLTIMO CAMPEÓN (poblado por JS) -->
+    <section aria-labelledby="campeon-titulo" class="py-10">
+      <h2 id="campeon-titulo" class="font-display text-2xl font-bold italic text-white" style="letter-spacing:-0.03em;">Último campeón</h2>
+      <div id="ultimo-campeon" class="mt-4">
+        <div class="skeleton h-40 w-full"></div>
+      </div>
+    </section>
+
+    <!-- BUTA EN 3 LÍNEAS -->
+    <section class="rounded-2xl border border-borde bg-tinta/70 p-8 shadow-card sm:p-10">
+      <h2 class="font-display text-2xl font-bold italic text-white" style="letter-spacing:-0.03em;">¿Qué es <span class="text-primario-glow">BUTA</span>?</h2>
+      <p class="mt-4 max-w-2xl font-body leading-[1.7] text-humo">
+        Somos una tienda de TCG sin local físico que vive donde están los duelistas: organizamos torneos de
+        Yu-Gi-Oh! en Córdoba, los transmitimos en vivo y armamos sorteos junto a la comunidad.
+      </p>
+      <a href="nosotros.html" class="mt-6 inline-block rounded-full border border-primario/50 px-6 py-2.5 font-display font-semibold text-primario-glow hover:bg-primario/10">Conocenos →</a>
+    </section>
+
+  </main>
+
+  <footer class="mt-20 border-t border-borde/60 py-10">
+    <div class="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-center font-body text-sm text-humo">
+      <a href="https://www.instagram.com/butatcg/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full border border-borde bg-tinta px-5 py-2.5 font-semibold text-white shadow-card hover:border-primario hover:shadow-glow-azul">
+        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.9.2 2.3.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1.1.4 2.3.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.9-.4 2.3-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1.1.4-2.3.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.9-.2-2.3-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1.1-.4-2.3-.1-1.2-.1-1.6-.1-4.8s0-3.6.1-4.8c.1-1.2.2-1.9.4-2.3.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1.1-.4 2.3-.4 1.2-.1 1.6-.1 4.8-.1zm0 1.8c-3.1 0-3.5 0-4.7.1-1.1.1-1.7.2-2.1.4-.5.2-.9.4-1.2.8-.4.4-.6.7-.8 1.2-.2.4-.3 1-.4 2.1-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.7.4 2.1.2.5.4.9.8 1.2.4.4.7.6 1.2.8.4.2 1 .3 2.1.4 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.7-.2 2.1-.4.5-.2.9-.4 1.2-.8.4-.4.6-.7.8-1.2.2-.4.3-1 .4-2.1.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.7-.4-2.1-.2-.5-.4-.9-.8-1.2-.4-.4-.7-.6-1.2-.8-.4-.2-1-.3-2.1-.4-1.2-.1-1.6-.1-4.7-.1zm0 3.1a4.9 4.9 0 1 1 0 9.8 4.9 4.9 0 0 1 0-9.8zm0 8a3.1 3.1 0 1 0 0-6.2 3.1 3.1 0 0 0 0 6.2zm6.2-8.2a1.1 1.1 0 1 1-2.3 0 1.1 1.1 0 0 1 2.3 0z"/></svg>
+        @butatcg
+      </a>
+      <p>© 2026 BUTA TCG · Torneos de Yu-Gi-Oh! Trading Card Game · Córdoba, Argentina</p>
+      <p class="text-xs text-humo/60">Yu-Gi-Oh! es marca registrada de Konami. Este sitio no está afiliado a Konami.</p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { loadTorneos, loadResultados, pickProximo, groupResultados } from './js/data.js';
+
+    const fmtFecha = (iso) => {
+      const [y, m, d] = (iso ?? '').split('-').map(Number);
+      if (!y) return iso ?? '';
+      return new Date(y, m - 1, d).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+    };
+
+    const torneos = await loadTorneos();
+    const prox = pickProximo(torneos);
+    const cont = document.getElementById('proximo-torneo');
+    cont.innerHTML = prox
+      ? `<a href="torneos.html" class="block rounded-2xl border border-primario/40 bg-tinta/70 p-6 shadow-glow-azul hover:opacity-90 sm:p-8">
+           <p class="font-display text-xl font-bold italic text-white">${prox.nombre}</p>
+           <p class="mt-2 font-body text-humo">📅 ${fmtFecha(prox.fecha)} · ${prox.hora} hs &nbsp; 📍 ${prox.lugar}</p>
+           <p class="mt-3 inline-block rounded-full bg-primario/15 px-4 py-1.5 font-body text-sm font-semibold text-primario-glow">Ver detalles e inscribirme →</p>
+         </a>`
+      : `<div class="rounded-2xl border border-borde bg-tinta/70 p-6 shadow-card sm:p-8">
+           <p class="font-display text-lg font-semibold text-white">Próximamente nuevo torneo</p>
+           <p class="mt-2 font-body text-humo">Seguinos en <a href="https://www.instagram.com/butatcg/" target="_blank" rel="noopener" class="text-primario-glow underline hover:opacity-80">Instagram</a> para enterarte antes que nadie.</p>
+         </div>`;
+
+    const grupos = groupResultados(await loadResultados());
+    const ultimo = Object.values(grupos).at(-1) ?? [];
+    const campeon = ultimo.find((r) => r.puesto === '1');
+    const camp = document.getElementById('ultimo-campeon');
+    if (campeon) {
+      const src = campeon.foto.includes('/') ? campeon.foto : `assets/results/${campeon.foto}`;
+      camp.innerHTML = `
+        <a href="resultados.html" class="flex flex-col items-stretch gap-5 rounded-2xl border border-oro/40 bg-tinta/70 p-5 shadow-card hover:opacity-90 sm:flex-row sm:items-center sm:p-6">
+          <div class="foto-marco h-48 w-full shrink-0 rounded-xl sm:h-36 sm:w-36"><img src="${src}" alt="Foto de ${campeon.nombre}, campeón" class="h-full w-full rounded-xl object-cover object-top" /></div>
+          <div>
+            <p class="font-body text-xs font-semibold uppercase tracking-[0.25em] text-oro">🏆 Campeón · ${campeon.torneo}</p>
+            <p class="mt-2 font-display text-2xl font-bold italic text-white">${campeon.nombre}</p>
+            <p class="mt-1 font-body text-humo">Deck: ${campeon.deck}</p>
+            <p class="mt-3 font-body text-sm font-semibold text-primario-glow">Ver el top completo →</p>
+          </div>
+        </a>`;
+    } else {
+      camp.innerHTML = '<p class="font-body text-humo">Todavía no hay resultados cargados.</p>';
+    }
+  </script>
+
+</body>
+</html>
