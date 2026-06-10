@@ -4,3 +4,5 @@ OBS/
 temporary screenshots/
 *.psd
 *.prproj
+node_modules/
+assets-src/
