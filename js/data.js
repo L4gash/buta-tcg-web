@@ -33,6 +33,7 @@ export function pickProximo(torneos) {
     || (t.estado ?? '').trim().toLowerCase() === 'próximo') ?? null;
 }
 
+// El orden de los grupos sigue el orden de las filas del CSV: cargar los torneos de más viejo a más nuevo.
 export function groupResultados(rows) {
   const out = {};
   for (const r of rows) (out[r.torneo] ??= []).push(r);
@@ -43,16 +44,17 @@ export function groupResultados(rows) {
 // ---- Carga remota con fallback ----
 async function fetchCsv(url, fallback) {
   if (!url) return fallback;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 8000);
     const res = await fetch(url, { signal: ctrl.signal });
-    clearTimeout(timer);
     if (!res.ok) return fallback;
     const rows = parseCsv(await res.text());
     return rows.length ? rows : fallback;
   } catch {
     return fallback;
+  } finally {
+    clearTimeout(timer);
   }
 }
 

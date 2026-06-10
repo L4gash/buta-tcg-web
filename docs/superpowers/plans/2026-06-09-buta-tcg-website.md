@@ -473,16 +473,17 @@ export function groupResultados(rows) {
 // ---- Carga remota con fallback ----
 async function fetchCsv(url, fallback) {
   if (!url) return fallback;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 8000);
     const res = await fetch(url, { signal: ctrl.signal });
-    clearTimeout(timer);
     if (!res.ok) return fallback;
     const rows = parseCsv(await res.text());
     return rows.length ? rows : fallback;
   } catch {
     return fallback;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
