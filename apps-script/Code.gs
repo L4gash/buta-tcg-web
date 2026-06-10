@@ -1,6 +1,7 @@
 // BUTA TCG — backend de inscripciones.
 // Script VINCULADO a la planilla (Extensiones > Apps Script). Ver docs/setup-google-sheets.md
-// doPost: inscribe {torneo, nombre, konami_id}. doGet: ?action=count&torneo=X devuelve el conteo.
+// doPost: inscribe {torneo, nombre, konami_id, comentario?}.
+// doGet: ?action=count&torneo=X (conteo de uno) · ?action=counts (conteos y cupos de todos los próximos).
 
 // NOTA: el cliente web envía Content-Type text/plain a propósito — evita el preflight
 // CORS que Apps Script no soporta. No cambiar a application/json.
@@ -11,6 +12,12 @@ const HOJA_INSCRIPCIONES = 'Inscripciones';
 function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// Evita que Sheets interprete texto libre como fórmula (=, +, -, @): se antepone
+// el apóstrofe que Sheets usa para "tratar como texto literal".
+function celdaSegura_(texto) {
+  return /^[=+\-@\t]/.test(texto) ? "'" + texto : texto;
 }
 
 function filas_(nombreHoja) {
@@ -27,6 +34,7 @@ function contar_(torneo) {
 
 function doGet(e) {
   try {
+    // Convención: estado debe ser exactamente "proximo"/"próximo" (la web filtra por igualdad exacta).
     if (e.parameter.action === 'counts') {
       const proximos = filas_(HOJA_TORNEOS).rows.filter(function (r) {
         const est = String(r.estado).toLowerCase();
@@ -84,7 +92,7 @@ function doPost(e) {
       return json_({ ok: false, error: 'lleno' });
     }
 
-    insc.sheet.appendRow([new Date(), torneo, nombre, "'" + konamiId, comentario]);
+    insc.sheet.appendRow([new Date(), torneo, celdaSegura_(nombre), "'" + konamiId, celdaSegura_(comentario)]);
     return json_({ ok: true, count: delTorneo.length + 1, cupo: Number(t.cupo_maximo) });
   } catch (err) {
     return json_({ ok: false, error: 'config_error' });
