@@ -814,12 +814,12 @@ Footer:
 ```html
 <footer class="mt-20 border-t border-borde/60 py-10">
   <div class="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-center font-body text-sm text-humo">
-    <a href="https://www.instagram.com/butatcg/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full border border-borde bg-tinta px-5 py-2.5 font-semibold text-white shadow-card hover:border-primario hover:shadow-glow-azul">
+    <a href="https://www.instagram.com/butatcg/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-full border border-borde bg-tinta px-5 py-2.5 font-semibold text-white shadow-card hover:border-primario hover:shadow-glow-azul">
       <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.9.2 2.3.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1.1.4 2.3.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.9-.4 2.3-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1.1.4-2.3.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.9-.2-2.3-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1.1-.4-2.3-.1-1.2-.1-1.6-.1-4.8s0-3.6.1-4.8c.1-1.2.2-1.9.4-2.3.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1.1-.4 2.3-.4 1.2-.1 1.6-.1 4.8-.1zm0 1.8c-3.1 0-3.5 0-4.7.1-1.1.1-1.7.2-2.1.4-.5.2-.9.4-1.2.8-.4.4-.6.7-.8 1.2-.2.4-.3 1-.4 2.1-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.7.4 2.1.2.5.4.9.8 1.2.4.4.7.6 1.2.8.4.2 1 .3 2.1.4 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.7-.2 2.1-.4.5-.2.9-.4 1.2-.8.4-.4.6-.7.8-1.2.2-.4.3-1 .4-2.1.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.7-.4-2.1-.2-.5-.4-.9-.8-1.2-.4-.4-.7-.6-1.2-.8-.4-.2-1-.3-2.1-.4-1.2-.1-1.6-.1-4.7-.1zm0 3.1a4.9 4.9 0 1 1 0 9.8 4.9 4.9 0 0 1 0-9.8zm0 8a3.1 3.1 0 1 0 0-6.2 3.1 3.1 0 0 0 0 6.2zm6.2-8.2a1.1 1.1 0 1 1-2.3 0 1.1 1.1 0 0 1 2.3 0z"/></svg>
       @butatcg
     </a>
     <p>© 2026 BUTA TCG · Torneos de Yu-Gi-Oh! Trading Card Game · Córdoba, Argentina</p>
-    <p class="text-xs text-humo/60">Yu-Gi-Oh! es marca registrada de Konami. Este sitio no está afiliado a Konami.</p>
+    <p class="text-xs text-humo">Yu-Gi-Oh! es marca registrada de Konami. Este sitio no está afiliado a Konami.</p>
   </div>
 </footer>
 ```
@@ -885,7 +885,7 @@ Footer:
 
 ```html
 <script type="module">
-  import { loadTorneos, loadResultados, pickProximo, groupResultados } from './js/data.js';
+  import { loadTorneos, loadResultados, pickProximo, groupResultados, esc } from './js/data.js';
 
   const fmtFecha = (iso) => {
     const [y, m, d] = (iso ?? '').split('-').map(Number);
@@ -893,38 +893,45 @@ Footer:
     return new Date(y, m - 1, d).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   };
 
-  const torneos = await loadTorneos();
-  const prox = pickProximo(torneos);
-  const cont = document.getElementById('proximo-torneo');
-  cont.innerHTML = prox
-    ? `<a href="torneos.html" class="block rounded-2xl border border-primario/40 bg-tinta/70 p-6 shadow-glow-azul hover:opacity-90 sm:p-8">
-         <p class="font-display text-xl font-bold italic text-white">${prox.nombre}</p>
-         <p class="mt-2 font-body text-humo">📅 ${fmtFecha(prox.fecha)} · ${prox.hora} hs &nbsp; 📍 ${prox.lugar}</p>
-         <p class="mt-3 inline-block rounded-full bg-primario/15 px-4 py-1.5 font-body text-sm font-semibold text-primario-glow">Ver detalles e inscribirme →</p>
-       </a>`
-    : `<div class="rounded-2xl border border-borde bg-tinta/70 p-6 shadow-card sm:p-8">
-         <p class="font-display text-lg font-semibold text-white">Próximamente nuevo torneo</p>
-         <p class="mt-2 font-body text-humo">Seguinos en <a href="https://www.instagram.com/butatcg/" target="_blank" rel="noopener" class="text-primario-glow underline hover:opacity-80">Instagram</a> para enterarte antes que nadie.</p>
-       </div>`;
+  try {
+    const torneos = await loadTorneos();
+    const prox = pickProximo(torneos);
+    const cont = document.getElementById('proximo-torneo');
+    cont.innerHTML = prox
+      ? `<a href="torneos.html" class="block rounded-2xl border border-primario/40 bg-tinta/70 p-6 shadow-glow-azul hover:opacity-90 sm:p-8">
+           <p class="font-display text-xl font-bold italic text-white">${esc(prox.nombre)}</p>
+           <p class="mt-2 font-body text-humo">📅 ${fmtFecha(prox.fecha)} · ${esc(prox.hora)} hs &nbsp; 📍 ${esc(prox.lugar)}</p>
+           <p class="mt-3 inline-block rounded-full bg-primario/15 px-4 py-1.5 font-body text-sm font-semibold text-primario-glow">Ver detalles e inscribirme →</p>
+         </a>`
+      : `<div class="rounded-2xl border border-borde bg-tinta/70 p-6 shadow-card sm:p-8">
+           <p class="font-display text-lg font-semibold text-white">Próximamente nuevo torneo</p>
+           <p class="mt-2 font-body text-humo">Seguinos en <a href="https://www.instagram.com/butatcg/" target="_blank" rel="noopener noreferrer" class="text-primario-glow underline hover:opacity-80">Instagram</a> para enterarte antes que nadie.</p>
+         </div>`;
 
-  const grupos = groupResultados(await loadResultados());
-  const ultimo = Object.values(grupos).at(-1) ?? [];
-  const campeon = ultimo.find((r) => r.puesto === '1');
-  const camp = document.getElementById('ultimo-campeon');
-  if (campeon) {
-    const src = campeon.foto.includes('/') ? campeon.foto : `assets/results/${campeon.foto}`;
-    camp.innerHTML = `
-      <a href="resultados.html" class="flex flex-col items-stretch gap-5 rounded-2xl border border-oro/40 bg-tinta/70 p-5 shadow-card hover:opacity-90 sm:flex-row sm:items-center sm:p-6">
-        <div class="foto-marco h-48 w-full shrink-0 rounded-xl sm:h-36 sm:w-36"><img src="${src}" alt="Foto de ${campeon.nombre}, campeón" class="h-full w-full rounded-xl object-cover object-top" /></div>
-        <div>
-          <p class="font-body text-xs font-semibold uppercase tracking-[0.25em] text-oro">🏆 Campeón · ${campeon.torneo}</p>
-          <p class="mt-2 font-display text-2xl font-bold italic text-white">${campeon.nombre}</p>
-          <p class="mt-1 font-body text-humo">Deck: ${campeon.deck}</p>
-          <p class="mt-3 font-body text-sm font-semibold text-primario-glow">Ver el top completo →</p>
-        </div>
-      </a>`;
-  } else {
-    camp.innerHTML = '<p class="font-body text-humo">Todavía no hay resultados cargados.</p>';
+    const grupos = groupResultados(await loadResultados());
+    const ultimo = Object.values(grupos).at(-1) ?? [];
+    const campeon = ultimo.find((r) => r.puesto === '1');
+    const camp = document.getElementById('ultimo-campeon');
+    if (campeon) {
+      const src = esc(campeon.foto.includes('/') ? campeon.foto : `assets/results/${campeon.foto}`);
+      camp.innerHTML = `
+        <a href="resultados.html" class="flex flex-col items-stretch gap-5 rounded-2xl border border-oro/40 bg-tinta/70 p-5 shadow-card hover:opacity-90 sm:flex-row sm:items-center sm:p-6">
+          <div class="foto-marco h-48 w-full shrink-0 rounded-xl sm:h-36 sm:w-36"><img src="${src}" alt="Foto de ${esc(campeon.nombre)}, campeón" class="h-full w-full rounded-xl object-cover object-top" /></div>
+          <div>
+            <p class="font-body text-xs font-semibold uppercase tracking-[0.25em] text-oro">🏆 Campeón · ${esc(campeon.torneo)}</p>
+            <p class="mt-2 font-display text-2xl font-bold italic text-white">${esc(campeon.nombre)}</p>
+            <p class="mt-1 font-body text-humo">Deck: ${esc(campeon.deck)}</p>
+            <p class="mt-3 font-body text-sm font-semibold text-primario-glow">Ver el top completo →</p>
+          </div>
+        </a>`;
+    } else {
+      camp.innerHTML = '<p class="font-body text-humo">Todavía no hay resultados cargados.</p>';
+    }
+  } catch {
+    document.getElementById('proximo-torneo').innerHTML =
+      '<p class="font-body text-humo">No se pudieron cargar los datos del torneo.</p>';
+    document.getElementById('ultimo-campeon').innerHTML =
+      '<p class="font-body text-humo">No se pudieron cargar los resultados.</p>';
   }
 </script>
 ```
@@ -998,7 +1005,7 @@ git commit -m "feat: home page with hero, next tournament, last champion"
 - [ ] **Step 2: Create `js/inscripcion.js`**
 
 ```js
-import { loadTorneos, pickProximo } from './data.js';
+import { loadTorneos, pickProximo, esc } from './data.js';
 import { validarNombre, validarKonamiId } from './validation.js';
 import { APPS_SCRIPT_URL, INSTAGRAM_URL } from './config.js';
 
@@ -1024,12 +1031,12 @@ function renderFicha(t, count) {
   const pct = tieneConteo && cupo ? Math.min(100, Math.round((count / cupo) * 100)) : 0;
   $('ficha-torneo').innerHTML = `
     <div class="rounded-2xl border border-primario/40 bg-tinta/70 p-6 shadow-glow-azul sm:p-8">
-      <h2 class="font-display text-2xl font-bold italic text-white">${t.nombre}</h2>
+      <h2 class="font-display text-2xl font-bold italic text-white">${esc(t.nombre)}</h2>
       <dl class="mt-5 grid gap-4 font-body text-humo sm:grid-cols-2">
-        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">📅 Fecha y hora</dt><dd class="mt-1 text-white">${fmtFecha(t.fecha)} · ${t.hora} hs</dd></div>
-        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">📍 Lugar</dt><dd class="mt-1 text-white">${t.lugar}</dd></div>
-        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">🃏 Formato y reglas</dt><dd class="mt-1 text-white">${t.formato}<br />${t.reglas}</dd></div>
-        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">💰 Precio · 🏆 Premios</dt><dd class="mt-1 text-white">${t.precio || 'A confirmar'}<br />${t.premios}</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">📅 Fecha y hora</dt><dd class="mt-1 text-white">${fmtFecha(t.fecha)} · ${esc(t.hora)} hs</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">📍 Lugar</dt><dd class="mt-1 text-white">${esc(t.lugar)}</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">🃏 Formato y reglas</dt><dd class="mt-1 text-white">${esc(t.formato)}<br />${esc(t.reglas)}</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">💰 Precio · 🏆 Premios</dt><dd class="mt-1 text-white">${esc(t.precio || 'A confirmar')}<br />${esc(t.premios)}</dd></div>
       </dl>
       <div class="mt-6">
         <div class="flex justify-between font-body text-sm text-humo">
@@ -1046,7 +1053,7 @@ function renderSinTorneo() {
     <div class="rounded-2xl border border-borde bg-tinta/70 p-8 text-center shadow-card">
       <p class="font-display text-xl font-bold italic text-white">Próximamente nuevo torneo</p>
       <p class="mt-3 font-body leading-[1.7] text-humo">Estamos preparando la próxima fecha. Seguinos en
-        <a href="${INSTAGRAM_URL}" target="_blank" rel="noopener" class="text-primario-glow underline hover:opacity-80">Instagram</a> para enterarte antes que nadie.</p>
+        <a href="${INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer" class="text-primario-glow underline hover:opacity-80">Instagram</a> para enterarte antes que nadie.</p>
     </div>`;
   $('seccion-inscripcion').hidden = true;
 }
@@ -1080,7 +1087,7 @@ if (!prox) {
 
   if (!APPS_SCRIPT_URL) {
     $('form-inscripcion').innerHTML = `<p class="font-body leading-[1.7] text-humo">La inscripción online estará disponible muy pronto.
-      Mientras tanto, anotate por <a href="${INSTAGRAM_URL}" target="_blank" rel="noopener" class="text-primario-glow underline hover:opacity-80">Instagram</a>.</p>`;
+      Mientras tanto, anotate por <a href="${INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer" class="text-primario-glow underline hover:opacity-80">Instagram</a>.</p>`;
   } else {
     $('form-inscripcion').addEventListener('submit', async (ev) => {
       ev.preventDefault();
@@ -1180,24 +1187,24 @@ git commit -m "feat: tournaments page with live capacity and registration form"
 - [ ] **Step 2: Create `js/resultados.js`**
 
 ```js
-import { loadResultados, groupResultados } from './data.js';
+import { loadResultados, groupResultados, esc } from './data.js';
 
 const $ = (id) => document.getElementById(id);
 const src = (foto) => (foto.includes('/') ? foto : `assets/results/${foto}`);
 const MEDALLAS = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
 function tarjeta(r, destacada = false) {
-  const medalla = MEDALLAS[Number(r.puesto)] ?? `#${r.puesto}`;
+  const medalla = MEDALLAS[Number(r.puesto)] ?? `#${esc(r.puesto)}`;
   const borde = Number(r.puesto) === 1 ? 'border-oro/60 shadow-glow-violeta' : 'border-borde shadow-card';
   return `
-    <button type="button" data-foto="${src(r.foto)}" data-nombre="${r.nombre}"
+    <button type="button" data-foto="${esc(src(r.foto))}" data-nombre="${esc(r.nombre)}"
       class="tarjeta-resultado group block w-full rounded-2xl border ${borde} bg-tinta/70 p-3 text-left hover:border-primario">
       <div class="foto-marco ${destacada ? 'h-72 sm:h-96' : 'h-56'} rounded-xl">
-        <img src="${src(r.foto)}" alt="Decklist de ${r.nombre}" loading="lazy" class="h-full w-full rounded-xl object-cover object-top" />
+        <img src="${esc(src(r.foto))}" alt="Decklist de ${esc(r.nombre)}" loading="lazy" class="h-full w-full rounded-xl object-cover object-top" />
       </div>
       <div class="px-2 pb-1 pt-3">
-        <p class="font-display ${destacada ? 'text-xl' : 'text-base'} font-bold italic text-white">${medalla} ${r.nombre}</p>
-        <p class="font-body text-sm text-humo">Top ${r.puesto} · Deck: ${r.deck}</p>
+        <p class="font-display ${destacada ? 'text-xl' : 'text-base'} font-bold italic text-white">${medalla} ${esc(r.nombre)}</p>
+        <p class="font-body text-sm text-humo">Top ${esc(r.puesto)} · Deck: ${esc(r.deck)}</p>
       </div>
     </button>`;
 }
@@ -1231,7 +1238,7 @@ const sel = $('selector-torneo');
 if (!nombres.length) {
   $('podio').innerHTML = '<p class="text-center font-body text-humo">Todavía no hay resultados cargados.</p>';
 } else {
-  sel.innerHTML = nombres.map((n) => `<option value="${n}">${n}</option>`).join('');
+  sel.innerHTML = nombres.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
   sel.value = nombres.at(-1);
   render(grupos[sel.value]);
   sel.addEventListener('change', () => render(grupos[sel.value]));
@@ -1306,7 +1313,7 @@ git commit -m "feat: results page with podium, top grid, and lightbox"
   <div class="rounded-2xl border border-primario/40 bg-tinta/70 p-8 shadow-glow-azul sm:p-12">
     <h2 class="font-display text-2xl font-bold italic text-white" style="letter-spacing:-0.03em;">Seguinos en Instagram</h2>
     <p class="mx-auto mt-3 max-w-md font-body leading-[1.7] text-humo">Fechas nuevas, resultados, sorteos y contenido de la comunidad. Todo pasa primero por acá.</p>
-    <a href="https://www.instagram.com/butatcg/" target="_blank" rel="noopener"
+    <a href="https://www.instagram.com/butatcg/" target="_blank" rel="noopener noreferrer"
       class="mt-6 inline-block rounded-full bg-gradient-to-r from-primario to-violeta px-10 py-4 font-display text-lg font-bold italic text-white shadow-glow-azul hover:opacity-90">@butatcg</a>
   </div>
 </section>

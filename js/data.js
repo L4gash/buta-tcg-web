@@ -60,3 +60,9 @@ async function fetchCsv(url, fallback) {
 
 export const loadTorneos = () => fetchCsv(TORNEOS_CSV_URL, FALLBACK_TORNEOS);
 export const loadResultados = () => fetchCsv(RESULTADOS_CSV_URL, FALLBACK_RESULTADOS);
+
+// ---- Utilidad de render ----
+// Escapa texto antes de interpolarlo en innerHTML (los datos vienen de la planilla de BUTA,
+// pero escapar evita sorpresas si alguna celda trae HTML).
+export const esc = (s) => String(s ?? '')
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
