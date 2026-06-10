@@ -25,6 +25,9 @@ nuevos y recibir inscripciones necesitás conectar tu planilla. Tardás ~15 minu
 1. Botón **Implementar** → Nueva implementación → tipo **Aplicación web**.
 2. Configurá: "Ejecutar como": **Yo** · "Quién tiene acceso": **Cualquier usuario**.
 3. Implementar → autorizá los permisos cuando los pida → copiá la **URL de la aplicación web** (termina en `/exec`).
+4. 💡 Si cerraste el diálogo sin copiar la URL: Implementar → **Gestionar implementaciones** y ahí la ves de nuevo.
+5. 💡 Si algún día editás el código del script, los cambios NO se aplican solos: tenés que ir a
+   Implementar → Gestionar implementaciones → ✏️ Editar → Versión: **Nueva versión** → Implementar.
 
 ## Paso 5 — Pegar las 3 URLs en la web
 Abrí el archivo `js/config.js` del sitio y pegá cada link entre las comillas:
