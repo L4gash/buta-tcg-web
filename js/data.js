@@ -36,6 +36,10 @@ export function pickProximos(torneos) {
   });
 }
 
+// Alias de compatibilidad: módulos v1 cacheados por el navegador durante la ventana
+// del deploy todavía importan pickProximo (singular). No usar en código nuevo.
+export const pickProximo = (torneos) => pickProximos(torneos)[0] ?? null;
+
 // El orden de los grupos sigue el orden de las filas del CSV: cargar los torneos de más viejo a más nuevo.
 export function groupResultados(rows) {
   const out = {};
