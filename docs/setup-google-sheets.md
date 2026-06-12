@@ -78,8 +78,13 @@ Permite que el jugador adjunte una foto del comprobante al inscribirse; se guard
 1. En la pestaña `Inscripciones`, escribí `comprobante` en la celda F1 (a la derecha de `comentario`).
 2. Repegá TODO el `apps-script/Code.gs` actualizado en Extensiones → Apps Script y guardá.
 3. ⚠️ Implementar → Gestionar implementaciones → ✏️ Editar → Versión: **Nueva versión** → Implementar.
-4. La primera vez que alguien suba un comprobante, Google te va a pedir **autorizar un permiso
-   nuevo** (acceso a tu Drive): aceptalo una vez. Se crea sola una carpeta llamada
-   `BUTA TCG - Comprobantes` en tu Drive con todos los comprobantes (privada, solo la ves vos).
+4. **Autorizá el permiso de Drive** (una sola vez): en el editor de Apps Script, en el
+   desplegable de funciones (arriba, al lado de "Depuración") elegí **`autorizarDrive`** y clic
+   en **▶ Ejecutar**. Google muestra "Se requiere autorización" → Revisar permisos → elegí la
+   cuenta de BUTA → (si dice "Google no verificó esta app": Configuración avanzada → Ir al
+   proyecto) → **Permitir** el acceso a Google Drive. Eso crea sola la carpeta
+   `BUTA TCG - Comprobantes` en tu Drive (privada, solo la ves vos).
+   ⚠️ Importante: hacé esto ANTES o DESPUÉS del deploy, pero si lo hacés después, volvé a
+   **Implementar → Gestionar implementaciones → Nueva versión** para que la web tome el permiso.
 5. El adjunto es **opcional**: quien no suba foto se inscribe igual, y la columna `comprobante`
    de esa fila queda vacía. Si alguien la sube, ahí aparece el link al archivo.

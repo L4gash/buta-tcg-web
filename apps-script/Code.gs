@@ -34,6 +34,15 @@ function carpetaComprobantes_() {
   return it.hasNext() ? it.next() : DriveApp.createFolder(CARPETA_COMPROBANTES);
 }
 
+// Ejecutá esta función UNA vez desde el editor (desplegable de funciones → autorizarDrive →
+// ▶ Ejecutar) para conceder el permiso de Google Drive. Como toca Drive, Google muestra el
+// cartel "Se requiere autorización": aceptalo. De paso crea la carpeta de comprobantes.
+function autorizarDrive() {
+  const carpeta = carpetaComprobantes_();
+  Logger.log('Carpeta de comprobantes lista: ' + carpeta.getUrl());
+  return carpeta.getUrl();
+}
+
 // Guarda el comprobante en Drive y escribe su link en la fila de la inscripción.
 function guardarComprobante_(datos) {
   const konamiId = String(datos.konami_id || '').trim();
