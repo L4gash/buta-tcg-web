@@ -1,9 +1,12 @@
 import { loadTorneos, pickProximos, esc } from './data.js';
 import { validarNombre, validarKonamiId, validarComentario } from './validation.js';
 import { APPS_SCRIPT_URL, INSTAGRAM_URL } from './config.js';
+import { validarImagen, comprimirImagen } from './imagen.js';
 
 const MENSAJES = {
   ok: '✓ ¡Inscripción confirmada! Nos vemos en el torneo.',
+  ok_comprobante: '✓ ¡Inscripción confirmada! Comprobante recibido.',
+  ok_sin_comprobante: '✓ ¡Inscripción confirmada! No pudimos subir el comprobante — envialo por WhatsApp al organizador.',
   duplicado: 'Este Konami ID ya está inscripto en ese torneo.',
   lleno: 'El cupo de ese torneo está lleno. Escribinos por Instagram por lista de espera.',
   datos_invalidos: 'Revisá los datos: nombre completo y Konami ID de 10 números.',
@@ -107,7 +110,7 @@ function renderSinTorneos() {
 function mostrarMensaje(tipo) {
   const el = $('mensaje-resultado');
   el.textContent = MENSAJES[tipo] ?? MENSAJES.red;
-  el.className = `rounded-lg px-4 py-3 font-body text-sm ${tipo === 'ok'
+  el.className = `rounded-lg px-4 py-3 font-body text-sm ${tipo === 'ok' || tipo === 'ok_comprobante' || tipo === 'ok_sin_comprobante'
     ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/50'
     : 'bg-red-950/80 text-red-300 border border-red-700/50'}`;
   el.classList.remove('hidden');
@@ -120,6 +123,20 @@ async function consultarConteos() {
     const data = await res.json();
     return data.ok && data.counts ? data.counts : null;
   } catch { return null; }
+}
+
+async function subirComprobante(torneo, konamiId, nombre, imagen) {
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'comprobante', torneo, konami_id: konamiId, nombre, imagen_b64: imagen.b64, mime: imagen.mime }),
+    });
+    const data = await res.json();
+    return !!data.ok;
+  } catch {
+    return false;
+  }
 }
 
 // Copiar alias (delegado: las tarjetas se re-renderizan)
@@ -171,6 +188,49 @@ if (!proximos.length) {
       e.target.value = e.target.value.replace(/\D/g, '');
     });
 
+    let imagenLista = null; // { b64, mime } tras comprimir, o null
+
+    $('comprobante').addEventListener('change', async (e) => {
+      const file = e.target.files[0] ?? null;
+      const err = $('comprobante-error');
+      const v = validarImagen(file);
+      if (v.vacio) {
+        imagenLista = null;
+        $('comprobante-preview').classList.add('hidden');
+        $('comprobante-preview').classList.remove('flex');
+        err.classList.add('hidden');
+        return;
+      }
+      if (!v.ok) {
+        err.textContent = v.motivo === 'tipo' ? 'El archivo debe ser una imagen (JPG/PNG).' : 'La imagen es demasiado grande (máx. 10 MB).';
+        err.classList.remove('hidden');
+        e.target.value = '';
+        imagenLista = null;
+        $('comprobante-preview').classList.add('hidden');
+        $('comprobante-preview').classList.remove('flex');
+        return;
+      }
+      err.classList.add('hidden');
+      try {
+        imagenLista = await comprimirImagen(file);
+        $('comprobante-thumb').src = `data:${imagenLista.mime};base64,${imagenLista.b64}`;
+        $('comprobante-nombre').textContent = file.name;
+        $('comprobante-preview').classList.remove('hidden');
+        $('comprobante-preview').classList.add('flex');
+      } catch {
+        err.textContent = 'No se pudo procesar la imagen. Probá con otra.';
+        err.classList.remove('hidden');
+        imagenLista = null;
+      }
+    });
+
+    $('comprobante-quitar').addEventListener('click', () => {
+      imagenLista = null;
+      $('comprobante').value = '';
+      $('comprobante-preview').classList.add('hidden');
+      $('comprobante-preview').classList.remove('flex');
+    });
+
     $('form-inscripcion').addEventListener('submit', async (ev) => {
       ev.preventDefault();
       const torneo = $('torneo-select').value;
@@ -199,9 +259,18 @@ if (!proximos.length) {
         if (data.ok) {
           inscripcionConfirmada = true;
           conteos[torneo] = data.count;
-          mostrarMensaje('ok');
+          if (imagenLista) {
+            btn.textContent = 'Inscripto ✓ subiendo comprobante…';
+            const subio = await subirComprobante(torneo, konamiId, nombre.trim(), imagenLista);
+            mostrarMensaje(subio ? 'ok_comprobante' : 'ok_sin_comprobante');
+          } else {
+            mostrarMensaje('ok');
+          }
           $('form-inscripcion').reset();
           $('contador-comentario').textContent = '0/100';
+          imagenLista = null;
+          $('comprobante-preview').classList.add('hidden');
+          $('comprobante-preview').classList.remove('flex');
           renderTorneos();
           renderSelector();
         } else {
