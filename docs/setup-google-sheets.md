@@ -70,3 +70,16 @@ Todo el sistema identifica los torneos por su nombre: si dos torneos activos se 
 las inscripciones se mezclan, el cupo se comparte y un jugador no puede anotarse a los dos.
 Si ya pasó: renombrá los torneos en `Torneos` y actualizá la columna `torneo` de las
 inscripciones existentes en `Inscripciones` (Ctrl+H, buscar y reemplazar) para que coincidan.
+
+## Actualización v3 (comprobante de pago opcional)
+
+Permite que el jugador adjunte una foto del comprobante al inscribirse; se guarda en tu Drive.
+
+1. En la pestaña `Inscripciones`, escribí `comprobante` en la celda F1 (a la derecha de `comentario`).
+2. Repegá TODO el `apps-script/Code.gs` actualizado en Extensiones → Apps Script y guardá.
+3. ⚠️ Implementar → Gestionar implementaciones → ✏️ Editar → Versión: **Nueva versión** → Implementar.
+4. La primera vez que alguien suba un comprobante, Google te va a pedir **autorizar un permiso
+   nuevo** (acceso a tu Drive): aceptalo una vez. Se crea sola una carpeta llamada
+   `BUTA TCG - Comprobantes` en tu Drive con todos los comprobantes (privada, solo la ves vos).
+5. El adjunto es **opcional**: quien no suba foto se inscribe igual, y la columna `comprobante`
+   de esa fila queda vacía. Si alguien la sube, ahí aparece el link al archivo.

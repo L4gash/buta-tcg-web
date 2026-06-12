@@ -1,6 +1,6 @@
 // BUTA TCG — backend de inscripciones.
 // Script VINCULADO a la planilla (Extensiones > Apps Script). Ver docs/setup-google-sheets.md
-// doPost: inscribe {torneo, nombre, konami_id, comentario?}.
+// doPost: inscribe {torneo, nombre, konami_id, comentario?} · sube comprobante {action:'comprobante', torneo, konami_id, nombre, imagen_b64, mime}.
 // doGet: ?action=count&torneo=X (conteo de uno) · ?action=counts (conteos y cupos de todos los próximos).
 
 // NOTA: el cliente web envía Content-Type text/plain a propósito — evita el preflight
@@ -8,6 +8,9 @@
 
 const HOJA_TORNEOS = 'Torneos';
 const HOJA_INSCRIPCIONES = 'Inscripciones';
+const CARPETA_COMPROBANTES = 'BUTA TCG - Comprobantes';
+const MAX_BYTES_COMPROBANTE = 1.5 * 1024 * 1024;
+const MIMES_COMPROBANTE = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
 
 function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
@@ -18,6 +21,56 @@ function json_(obj) {
 // el apóstrofe que Sheets usa para "tratar como texto literal".
 function celdaSegura_(texto) {
   return /^[=+\-@\t]/.test(texto) ? "'" + texto : texto;
+}
+
+// Nombre de archivo seguro: solo letras/números/guiones, recortado.
+function sanitizar_(texto) {
+  return String(texto).replace(/[^A-Za-z0-9-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'x';
+}
+
+// Busca o crea la carpeta de comprobantes en el Drive del dueño del script.
+function carpetaComprobantes_() {
+  const it = DriveApp.getFoldersByName(CARPETA_COMPROBANTES);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(CARPETA_COMPROBANTES);
+}
+
+// Guarda el comprobante en Drive y escribe su link en la fila de la inscripción.
+function guardarComprobante_(datos) {
+  const konamiId = String(datos.konami_id || '').trim();
+  const torneo = String(datos.torneo || '').trim();
+  const nombre = String(datos.nombre || '').trim();
+  const mime = String(datos.mime || '');
+  const b64 = String(datos.imagen_b64 || '');
+
+  if (!torneo || !/^\d{10}$/.test(konamiId) || !b64 || !MIMES_COMPROBANTE[mime]) {
+    return json_({ ok: false, error: 'datos_invalidos' });
+  }
+  let bytes;
+  try { bytes = Utilities.base64Decode(b64); }
+  catch (err) { return json_({ ok: false, error: 'datos_invalidos' }); }
+  if (bytes.length > MAX_BYTES_COMPROBANTE) {
+    return json_({ ok: false, error: 'archivo_grande' });
+  }
+
+  const fecha = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd-HHmm');
+  const nombreArch = sanitizar_(torneo) + '__' + sanitizar_(nombre) + '__' + konamiId + '__' + fecha + '.' + MIMES_COMPROBANTE[mime];
+  const blob = Utilities.newBlob(bytes, mime, nombreArch);
+  const url = carpetaComprobantes_().createFile(blob).getUrl();
+
+  const insc = filas_(HOJA_INSCRIPCIONES);
+  const col = insc.header.indexOf('comprobante'); // 0-based; -1 si la columna no existe
+  let sinFila = true;
+  if (col !== -1) {
+    for (let i = 0; i < insc.rows.length; i++) {
+      const r = insc.rows[i];
+      if (r.torneo === torneo && r.konami_id === konamiId) {
+        insc.sheet.getRange(i + 2, col + 1).setValue(url); // +2: la fila 1 es el encabezado
+        sinFila = false;
+        break;
+      }
+    }
+  }
+  return json_({ ok: true, sinFila: sinFila });
 }
 
 function filas_(nombreHoja) {
@@ -67,6 +120,10 @@ function doPost(e) {
     let datos;
     try { datos = JSON.parse(e.postData.contents); }
     catch (err) { return json_({ ok: false, error: 'datos_invalidos' }); }
+
+    if (datos.action === 'comprobante') {
+      return guardarComprobante_(datos);
+    }
 
     const nombre = String(datos.nombre || '').trim();
     const konamiId = String(datos.konami_id || '').trim();
