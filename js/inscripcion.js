@@ -189,8 +189,10 @@ if (!proximos.length) {
     });
 
     let imagenLista = null; // { b64, mime } tras comprimir, o null
+    let tokenCompresion = 0;
 
     $('comprobante').addEventListener('change', async (e) => {
+      const token = ++tokenCompresion;
       const file = e.target.files[0] ?? null;
       const err = $('comprobante-error');
       const v = validarImagen(file);
@@ -204,6 +206,7 @@ if (!proximos.length) {
       if (!v.ok) {
         err.textContent = v.motivo === 'tipo' ? 'El archivo debe ser una imagen (JPG/PNG).' : 'La imagen es demasiado grande (máx. 10 MB).';
         err.classList.remove('hidden');
+        $('comprobante').setAttribute('aria-invalid', 'true');
         e.target.value = '';
         imagenLista = null;
         $('comprobante-preview').classList.add('hidden');
@@ -211,8 +214,11 @@ if (!proximos.length) {
         return;
       }
       err.classList.add('hidden');
+      $('comprobante').setAttribute('aria-invalid', 'false');
       try {
-        imagenLista = await comprimirImagen(file);
+        const comprimida = await comprimirImagen(file);
+        if (token !== tokenCompresion) return; // una selección más nueva la reemplazó
+        imagenLista = comprimida;
         $('comprobante-thumb').src = `data:${imagenLista.mime};base64,${imagenLista.b64}`;
         $('comprobante-nombre').textContent = file.name;
         $('comprobante-preview').classList.remove('hidden');
@@ -229,6 +235,7 @@ if (!proximos.length) {
       $('comprobante').value = '';
       $('comprobante-preview').classList.add('hidden');
       $('comprobante-preview').classList.remove('flex');
+      $('comprobante-error').classList.add('hidden');
     });
 
     $('form-inscripcion').addEventListener('submit', async (ev) => {
@@ -269,6 +276,7 @@ if (!proximos.length) {
           $('form-inscripcion').reset();
           $('contador-comentario').textContent = '0/100';
           imagenLista = null;
+          $('comprobante-thumb').src = '';
           $('comprobante-preview').classList.add('hidden');
           $('comprobante-preview').classList.remove('flex');
           renderTorneos();

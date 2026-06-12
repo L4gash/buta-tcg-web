@@ -78,14 +78,15 @@
           </div>
           <div>
             <label for="comprobante" class="font-body text-sm font-semibold text-humo">Comprobante de pago <span class="font-normal text-humo/70">(opcional)</span></label>
-            <input id="comprobante" name="comprobante" type="file" accept="image/*"
+            <input id="comprobante" name="comprobante" type="file" accept="image/jpeg,image/png,image/webp"
+              aria-describedby="comprobante-error" aria-invalid="false"
               class="mt-1.5 block w-full cursor-pointer rounded-lg border border-borde bg-noche px-4 py-3 font-body text-sm text-humo file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-primario file:px-4 file:py-1.5 file:font-display file:text-xs file:font-semibold file:text-white hover:file:opacity-90 focus:border-primario" />
             <div id="comprobante-preview" class="mt-2 hidden items-center gap-3 rounded-lg border border-borde bg-noche/60 p-2">
               <img id="comprobante-thumb" alt="Vista previa del comprobante" class="h-12 w-12 rounded object-cover" />
               <span id="comprobante-nombre" class="min-w-0 flex-1 truncate font-body text-xs text-humo"></span>
               <button type="button" id="comprobante-quitar" class="shrink-0 rounded-full border border-borde px-3 py-1 font-body text-xs text-humo hover:border-primario hover:text-white">Quitar</button>
             </div>
-            <p id="comprobante-nota" class="mt-1.5 font-body text-xs leading-[1.6] text-humo/70">Opcional. Si transferiste, adjuntá la captura acá o envianos el comprobante por WhatsApp al organizador.</p>
+            <p id="comprobante-nota" class="mt-1.5 font-body text-xs leading-[1.6] text-humo">Opcional. Si transferiste, adjuntá la captura acá o envianos el comprobante por WhatsApp al organizador.</p>
             <p id="comprobante-error" data-error-for="comprobante" role="alert" class="mt-1.5 hidden font-body text-sm text-red-400"></p>
           </div>
           <button type="submit" id="btn-inscribir"
