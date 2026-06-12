@@ -191,6 +191,11 @@ if (!proximos.length) {
     let imagenLista = null; // { b64, mime } tras comprimir, o null
     let tokenCompresion = 0;
 
+    // Guarda por si un navegador con el HTML viejo cacheado (sin el campo comprobante) carga
+    // este JS nuevo durante la ventana del deploy: sin esta guarda, $('comprobante') sería null
+    // y rompería el formulario. Si el campo no existe, la inscripción funciona igual (sin foto).
+    const inputComprobante = $('comprobante');
+    if (inputComprobante) {
     $('comprobante').addEventListener('change', async (e) => {
       const token = ++tokenCompresion;
       const file = e.target.files[0] ?? null;
@@ -237,6 +242,7 @@ if (!proximos.length) {
       $('comprobante-preview').classList.remove('flex');
       $('comprobante-error').classList.add('hidden');
     });
+    }
 
     $('form-inscripcion').addEventListener('submit', async (ev) => {
       ev.preventDefault();
@@ -276,9 +282,11 @@ if (!proximos.length) {
           $('form-inscripcion').reset();
           $('contador-comentario').textContent = '0/100';
           imagenLista = null;
-          $('comprobante-thumb').src = '';
-          $('comprobante-preview').classList.add('hidden');
-          $('comprobante-preview').classList.remove('flex');
+          if (inputComprobante) {
+            $('comprobante-thumb').src = '';
+            $('comprobante-preview').classList.add('hidden');
+            $('comprobante-preview').classList.remove('flex');
+          }
           renderTorneos();
           renderSelector();
         } else {
