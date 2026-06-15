@@ -88,3 +88,14 @@ Permite que el jugador adjunte una foto del comprobante al inscribirse; se guard
    **Implementar → Gestionar implementaciones → Nueva versión** para que la web tome el permiso.
 5. El adjunto es **opcional**: quien no suba foto se inscribe igual, y la columna `comprobante`
    de esa fila queda vacía. Si alguien la sube, ahí aparece el link al archivo.
+
+## Cargar resultados de un torneo (v4)
+
+1. En la pestaña `Resultados`, agregá una fila por cada jugador del top con: `torneo`
+   (el nombre EXACTO del torneo), `puesto` (1, 2, 3…), `nombre`, y `deck` solo si lo sabés.
+2. Dejá la columna `foto` **vacía** en todos: las filas sin foto se ven como tarjetas
+   compactas (puesto + nombre + deck), sin imagen rota. El "deck" aparece solo si lo cargaste.
+3. **Decklist del campeón (o de quien tenga):** mandale la imagen al desarrollador. Él la sube
+   al sitio y te dice qué nombre poner en la celda `foto` de esa fila. Recién ahí esa tarjeta
+   muestra la imagen (clickeable, se agranda). El resto del top queda compacto.
+4. La página se actualiza sola al editar la planilla (no hay que tocar el sitio para el texto).
