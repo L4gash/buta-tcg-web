@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pickProximos, groupResultados, FALLBACK_TORNEOS, FALLBACK_RESULTADOS, esc } from '../js/data.js';
+import { pickProximos, groupResultados, FALLBACK_TORNEOS, FALLBACK_RESULTADOS, esc, tieneFoto, deckVisible } from '../js/data.js';
 
 test('groupResultados groups by torneo and sorts by puesto numerically', () => {
   const rows = [
@@ -39,4 +39,23 @@ test('pickProximos returns all torneos with estado proximo, in sheet order', () 
 
 test('fallback torneo has alias field', () => {
   assert.equal('alias' in FALLBACK_TORNEOS[0], true);
+});
+
+test('tieneFoto: true solo con valor no vacío tras trim', () => {
+  assert.equal(tieneFoto({ foto: 'mariano.jpg' }), true);
+  assert.equal(tieneFoto({ foto: '  x.jpg ' }), true);
+  assert.equal(tieneFoto({ foto: '' }), false);
+  assert.equal(tieneFoto({ foto: '   ' }), false);
+  assert.equal(tieneFoto({}), false);
+});
+
+test('deckVisible: true salvo vacío o guion', () => {
+  assert.equal(deckVisible('Snake-Eye'), true);
+  assert.equal(deckVisible('  Branded '), true);
+  assert.equal(deckVisible(''), false);
+  assert.equal(deckVisible('   '), false);
+  assert.equal(deckVisible('—'), false);
+  assert.equal(deckVisible(' — '), false);
+  assert.equal(deckVisible(undefined), false);
+  assert.equal(deckVisible(null), false);
 });

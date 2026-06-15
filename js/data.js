@@ -74,6 +74,15 @@ export const loadResultados = () => fetchCsv(RESULTADOS_CSV_URL, FALLBACK_RESULT
 export const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+// ¿La fila de resultado tiene foto cargada?
+export const tieneFoto = (r) => String(r?.foto ?? '').trim() !== '';
+
+// ¿Mostrar la línea de deck? (vacío o "—" => no)
+export const deckVisible = (deck) => {
+  const d = String(deck ?? '').trim();
+  return d !== '' && d !== '—';
+};
+
 // Firma del sitio (visible en la consola del navegador)
 if (typeof window !== 'undefined') {
   console.log(
