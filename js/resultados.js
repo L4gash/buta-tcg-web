@@ -15,6 +15,8 @@ function tarjeta(r, destacada = false) {
     ? `<p class="font-body text-sm text-humo">Top ${esc(r.puesto)} · Deck: ${esc(r.deck)}</p>`
     : `<p class="font-body text-sm text-humo">Top ${esc(r.puesto)}</p>`;
   const nombreLinea = `<p class="font-display ${destacada ? 'text-xl' : 'text-base'} font-bold italic text-white">${medalla} ${esc(r.nombre)}</p>`;
+  // En la tarjeta compacta la medalla ya va grande arriba, así que el nombre no la repite.
+  const nombreSolo = `<p class="font-display ${destacada ? 'text-xl' : 'text-base'} font-bold italic text-white">${esc(r.nombre)}</p>`;
 
   // Con foto: tarjeta interactiva con imagen + lightbox (igual que hoy).
   if (tieneFoto(r)) {
@@ -37,7 +39,7 @@ function tarjeta(r, destacada = false) {
     <div class="rounded-2xl border ${borde} bg-tinta/70 ${destacada ? 'p-6' : 'p-4'} text-center">
       <p class="font-display ${destacada ? 'text-3xl' : 'text-2xl'} leading-none">${medalla}</p>
       <div class="mt-2">
-        ${nombreLinea}
+        ${nombreSolo}
         ${lineaDeck}
       </div>
     </div>`;
