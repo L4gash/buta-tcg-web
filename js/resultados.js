@@ -1,7 +1,10 @@
 import { loadResultados, groupResultados, esc, tieneFoto, deckVisible } from './data.js';
 
 const $ = (id) => document.getElementById(id);
-const src = (foto) => (foto.includes('/') ? foto : `assets/results/${foto}`);
+const src = (foto) => {
+  const f = String(foto ?? '').trim();
+  return f.includes('/') ? f : `assets/results/${f}`;
+};
 const MEDALLAS = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
 function tarjeta(r, destacada = false) {
@@ -46,8 +49,8 @@ function render(resultados) {
   $('podio').innerHTML = `
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       <div class="sm:col-span-2 lg:col-span-1 lg:order-2">${podio[0] ? tarjeta(podio[0], true) : ''}</div>
-      <div class="lg:order-1 lg:self-end">${podio[1] ? tarjeta(podio[1]) : ''}</div>
-      <div class="lg:order-3 lg:self-end">${podio[2] ? tarjeta(podio[2]) : ''}</div>
+      <div class="lg:order-1 lg:self-center">${podio[1] ? tarjeta(podio[1]) : ''}</div>
+      <div class="lg:order-3 lg:self-center">${podio[2] ? tarjeta(podio[2]) : ''}</div>
     </div>`;
   $('grilla-top').innerHTML = resto.length
     ? `<h2 class="font-display text-xl font-bold italic text-white" style="letter-spacing:-0.03em;">Top ${podio.length + 1}–${resultados.length}</h2>
