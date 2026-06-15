@@ -1,4 +1,4 @@
-import { loadResultados, groupResultados, esc } from './data.js';
+import { loadResultados, groupResultados, esc, tieneFoto, deckVisible } from './data.js';
 
 const $ = (id) => document.getElementById(id);
 const src = (foto) => (foto.includes('/') ? foto : `assets/results/${foto}`);
@@ -6,19 +6,38 @@ const MEDALLAS = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
 function tarjeta(r, destacada = false) {
   const medalla = MEDALLAS[Number(r.puesto)] ?? `#${esc(r.puesto)}`;
-  const borde = Number(r.puesto) === 1 ? 'border-oro/60 shadow-glow-violeta' : 'border-borde shadow-card';
-  const altText = `Decklist de ${esc(r.nombre)} (Top ${esc(r.puesto)})`;
+  const esCampeon = Number(r.puesto) === 1;
+  const borde = esCampeon ? 'border-oro/60 shadow-glow-violeta' : 'border-borde shadow-card';
+  const lineaDeck = deckVisible(r.deck)
+    ? `<p class="font-body text-sm text-humo">Top ${esc(r.puesto)} · Deck: ${esc(r.deck)}</p>`
+    : `<p class="font-body text-sm text-humo">Top ${esc(r.puesto)}</p>`;
+  const nombreLinea = `<p class="font-display ${destacada ? 'text-xl' : 'text-base'} font-bold italic text-white">${medalla} ${esc(r.nombre)}</p>`;
+
+  // Con foto: tarjeta interactiva con imagen + lightbox (igual que hoy).
+  if (tieneFoto(r)) {
+    const altText = `Decklist de ${esc(r.nombre)} (Top ${esc(r.puesto)})`;
+    return `
+      <button type="button" data-foto="${esc(src(r.foto))}" data-alt="${altText}"
+        class="tarjeta-resultado group block w-full rounded-2xl border ${borde} bg-tinta/70 p-3 text-left hover:border-primario">
+        <div class="foto-marco ${destacada ? 'h-72 sm:h-96' : 'h-56'} rounded-xl">
+          <img src="${esc(src(r.foto))}" alt="${altText}" loading="${destacada ? 'eager' : 'lazy'}"${destacada ? ' fetchpriority="high"' : ''} class="h-full w-full rounded-xl object-cover object-top" />
+        </div>
+        <div class="px-2 pb-1 pt-3">
+          ${nombreLinea}
+          ${lineaDeck}
+        </div>
+      </button>`;
+  }
+
+  // Sin foto: tarjeta compacta NO interactiva (sin imagen, sin lightbox).
   return `
-    <button type="button" data-foto="${esc(src(r.foto))}" data-alt="${altText}"
-      class="tarjeta-resultado group block w-full rounded-2xl border ${borde} bg-tinta/70 p-3 text-left hover:border-primario">
-      <div class="foto-marco ${destacada ? 'h-72 sm:h-96' : 'h-56'} rounded-xl">
-        <img src="${esc(src(r.foto))}" alt="${altText}" loading="${destacada ? 'eager' : 'lazy'}"${destacada ? ' fetchpriority="high"' : ''} class="h-full w-full rounded-xl object-cover object-top" />
+    <div class="rounded-2xl border ${borde} bg-tinta/70 ${destacada ? 'p-6' : 'p-4'} text-center">
+      <p class="font-display ${destacada ? 'text-3xl' : 'text-2xl'} leading-none">${medalla}</p>
+      <div class="mt-2">
+        ${nombreLinea}
+        ${lineaDeck}
       </div>
-      <div class="px-2 pb-1 pt-3">
-        <p class="font-display ${destacada ? 'text-xl' : 'text-base'} font-bold italic text-white">${medalla} ${esc(r.nombre)}</p>
-        <p class="font-body text-sm text-humo">Top ${esc(r.puesto)} · Deck: ${esc(r.deck)}</p>
-      </div>
-    </button>`;
+    </div>`;
 }
 
 function render(resultados) {
