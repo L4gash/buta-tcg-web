@@ -1,5 +1,5 @@
 import { parseCsv } from './csv.js';
-import { TORNEOS_CSV_URL, RESULTADOS_CSV_URL } from './config.js';
+import { TORNEOS_CSV_URL, RESULTADOS_CSV_URL, RANKING_CSV_URL } from './config.js';
 
 // ---- Datos de respaldo (se muestran si la planilla no está configurada o no responde) ----
 export const FALLBACK_TORNEOS = [{
@@ -67,6 +67,20 @@ async function fetchCsv(url, fallback) {
 
 export const loadTorneos = () => fetchCsv(TORNEOS_CSV_URL, FALLBACK_TORNEOS);
 export const loadResultados = () => fetchCsv(RESULTADOS_CSV_URL, FALLBACK_RESULTADOS);
+
+// ---- Ranking de liga (2º planilla) ----
+export const FALLBACK_RANKING = [
+  { Pos: '1', Jugador: 'Juanny Gordillo', 'Torneos Jugados': '3', 'PL Totales': '46', 'Ultima fecha': 'domingo 14/6' },
+  { Pos: '2', Jugador: 'Alex Herrera', 'Torneos Jugados': '3', 'PL Totales': '43', 'Ultima fecha': 'domingo 14/6' },
+  { Pos: '3', Jugador: 'Mariano Castro', 'Torneos Jugados': '3', 'PL Totales': '38', 'Ultima fecha': 'domingo 14/6' },
+  { Pos: '4', Jugador: 'Gaston Gimenez', 'Torneos Jugados': '2', 'PL Totales': '36', 'Ultima fecha': 'sábado 13/6' },
+  { Pos: '5', Jugador: 'Charly Ramallo', 'Torneos Jugados': '3', 'PL Totales': '31', 'Ultima fecha': 'domingo 14/6' },
+];
+
+// Descarta filas de relleno (sin nombre de jugador).
+export const filtrarRanking = (rows) => rows.filter((r) => String(r?.Jugador ?? '').trim() !== '');
+
+export const loadRanking = () => fetchCsv(RANKING_CSV_URL, FALLBACK_RANKING);
 
 // ---- Utilidad de render ----
 // Escapa texto antes de interpolarlo en innerHTML (los datos vienen de la planilla de BUTA,

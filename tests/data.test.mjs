@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pickProximos, groupResultados, FALLBACK_TORNEOS, FALLBACK_RESULTADOS, esc, tieneFoto, deckVisible } from '../js/data.js';
+import { pickProximos, groupResultados, FALLBACK_TORNEOS, FALLBACK_RESULTADOS, esc, tieneFoto, deckVisible, filtrarRanking, FALLBACK_RANKING } from '../js/data.js';
 
 test('groupResultados groups by torneo and sorts by puesto numerically', () => {
   const rows = [
@@ -58,4 +58,21 @@ test('deckVisible: true salvo vacío o guion', () => {
   assert.equal(deckVisible(' — '), false);
   assert.equal(deckVisible(undefined), false);
   assert.equal(deckVisible(null), false);
+});
+
+test('filtrarRanking descarta filas sin Jugador', () => {
+  const rows = [
+    { Pos: '1', Jugador: 'Juanny Gordillo', 'PL Totales': '46' },
+    { Pos: '2', Jugador: '  ', 'PL Totales': '0' },
+    { Pos: '3', Jugador: '', 'PL Totales': '0' },
+    { Pos: '4', Jugador: 'Alex Herrera', 'PL Totales': '43' },
+  ];
+  assert.deepEqual(filtrarRanking(rows).map((r) => r.Jugador), ['Juanny Gordillo', 'Alex Herrera']);
+  assert.deepEqual(filtrarRanking([]), []);
+});
+
+test('FALLBACK_RANKING tiene jugadores con PL', () => {
+  assert.ok(FALLBACK_RANKING.length >= 3);
+  assert.equal('Jugador' in FALLBACK_RANKING[0], true);
+  assert.equal('PL Totales' in FALLBACK_RANKING[0], true);
 });
