@@ -293,6 +293,7 @@ if (typeof document !== 'undefined') {
           const data = await res.json();
           if (data.ok) {
             inscripcionConfirmada = true;
+            localStorage.setItem('buta_jugador', JSON.stringify({ nombre: nombre.trim(), konami_id: konamiId }));
             conteos[torneo] = data.count;
             if (imagenLista) {
               btn.textContent = 'Inscripto ✓ subiendo comprobante…';
