@@ -197,6 +197,12 @@ if (typeof document !== 'undefined') {
       $('form-inscripcion').innerHTML = `<p class="font-body leading-[1.7] text-humo">La inscripción online estará disponible muy pronto.
         Mientras tanto, anotate por <a href="${INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer" class="text-primario-glow underline hover:opacity-80">Instagram</a>.</p>`;
     } else {
+      const perfil = leerPerfilGuardado(localStorage.getItem('buta_jugador'));
+      if (perfil) {
+        $('nombre').value = perfil.nombre;
+        $('konami-id').value = perfil.konami_id;
+      }
+
       $('comentario').addEventListener('input', (e) => {
         $('contador-comentario').textContent = `${e.target.value.length}/100`;
       });
