@@ -3,6 +3,20 @@ import { validarNombre, validarKonamiId, validarComentario } from './validation.
 import { APPS_SCRIPT_URL, INSTAGRAM_URL } from './config.js';
 import { validarImagen, comprimirImagen } from './imagen.js';
 
+export function leerPerfilGuardado(raw) {
+  if (!raw) return null;
+  try {
+    const obj = JSON.parse(raw);
+    if (typeof obj !== 'object' || obj === null) return null;
+    const nombre = String(obj.nombre ?? '');
+    const konami_id = String(obj.konami_id ?? '');
+    if (!nombre && !konami_id) return null;
+    return { nombre, konami_id };
+  } catch {
+    return null;
+  }
+}
+
 const MENSAJES = {
   ok: '✓ ¡Inscripción confirmada! Nos vemos en el torneo.',
   ok_comprobante: '✓ ¡Inscripción confirmada! Comprobante recibido.',
@@ -139,165 +153,168 @@ async function subirComprobante(torneo, konamiId, nombre, imagen) {
   }
 }
 
-// Copiar alias (delegado: las tarjetas se re-renderizan)
-document.addEventListener('click', async (e) => {
-  const btn = e.target.closest('.btn-copiar-alias');
-  if (!btn) return;
-  try {
-    await navigator.clipboard.writeText(btn.dataset.alias);
-    const original = btn.textContent;
-    btn.textContent = '✓ Copiado';
-    setTimeout(() => { btn.textContent = original; }, 2000);
-  } catch { /* sin permiso de portapapeles: no hacemos nada */ }
-});
-
-// Elegir torneo desde una tarjeta (delegado)
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.btn-elegir-torneo');
-  if (!btn || btn.disabled) return;
-  $('torneo-select').value = btn.dataset.torneo;
-  $('seccion-inscripcion').scrollIntoView({ behavior: 'smooth' });
-});
-
-const torneos = await loadTorneos();
-proximos = pickProximos(torneos);
-
-if (!proximos.length) {
-  renderSinTorneos();
-} else {
-  renderTorneos();
-  renderSelector();
-
-  let inscripcionConfirmada = false;
-  consultarConteos().then((c) => {
-    if (c && !inscripcionConfirmada) {
-      conteos = c;
-      renderTorneos();
-      renderSelector();
-    }
+// Only initialize DOM if in browser environment
+if (typeof document !== 'undefined') {
+  // Copiar alias (delegado: las tarjetas se re-renderizan)
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.btn-copiar-alias');
+    if (!btn) return;
+    try {
+      await navigator.clipboard.writeText(btn.dataset.alias);
+      const original = btn.textContent;
+      btn.textContent = '✓ Copiado';
+      setTimeout(() => { btn.textContent = original; }, 2000);
+    } catch { /* sin permiso de portapapeles: no hacemos nada */ }
   });
 
-  if (!APPS_SCRIPT_URL) {
-    $('form-inscripcion').innerHTML = `<p class="font-body leading-[1.7] text-humo">La inscripción online estará disponible muy pronto.
-      Mientras tanto, anotate por <a href="${INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer" class="text-primario-glow underline hover:opacity-80">Instagram</a>.</p>`;
+  // Elegir torneo desde una tarjeta (delegado)
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-elegir-torneo');
+    if (!btn || btn.disabled) return;
+    $('torneo-select').value = btn.dataset.torneo;
+    $('seccion-inscripcion').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  const torneos = await loadTorneos();
+  proximos = pickProximos(torneos);
+
+  if (!proximos.length) {
+    renderSinTorneos();
   } else {
-    $('comentario').addEventListener('input', (e) => {
-      $('contador-comentario').textContent = `${e.target.value.length}/100`;
-    });
-    $('konami-id').addEventListener('input', (e) => {
-      e.target.value = e.target.value.replace(/\D/g, '');
-    });
+    renderTorneos();
+    renderSelector();
 
-    let imagenLista = null; // { b64, mime } tras comprimir, o null
-    let tokenCompresion = 0;
-
-    // Guarda por si un navegador con el HTML viejo cacheado (sin el campo comprobante) carga
-    // este JS nuevo durante la ventana del deploy: sin esta guarda, $('comprobante') sería null
-    // y rompería el formulario. Si el campo no existe, la inscripción funciona igual (sin foto).
-    const inputComprobante = $('comprobante');
-    if (inputComprobante) {
-    $('comprobante').addEventListener('change', async (e) => {
-      const token = ++tokenCompresion;
-      const file = e.target.files[0] ?? null;
-      const err = $('comprobante-error');
-      const v = validarImagen(file);
-      if (v.vacio) {
-        imagenLista = null;
-        $('comprobante-preview').classList.add('hidden');
-        $('comprobante-preview').classList.remove('flex');
-        err.classList.add('hidden');
-        return;
-      }
-      if (!v.ok) {
-        err.textContent = v.motivo === 'tipo' ? 'El archivo debe ser una imagen (JPG/PNG).' : 'La imagen es demasiado grande (máx. 10 MB).';
-        err.classList.remove('hidden');
-        $('comprobante').setAttribute('aria-invalid', 'true');
-        e.target.value = '';
-        imagenLista = null;
-        $('comprobante-preview').classList.add('hidden');
-        $('comprobante-preview').classList.remove('flex');
-        return;
-      }
-      err.classList.add('hidden');
-      $('comprobante').setAttribute('aria-invalid', 'false');
-      try {
-        const comprimida = await comprimirImagen(file);
-        if (token !== tokenCompresion) return; // una selección más nueva la reemplazó
-        imagenLista = comprimida;
-        $('comprobante-thumb').src = `data:${imagenLista.mime};base64,${imagenLista.b64}`;
-        $('comprobante-nombre').textContent = file.name;
-        $('comprobante-preview').classList.remove('hidden');
-        $('comprobante-preview').classList.add('flex');
-      } catch {
-        err.textContent = 'No se pudo procesar la imagen. Probá con otra.';
-        err.classList.remove('hidden');
-        imagenLista = null;
+    let inscripcionConfirmada = false;
+    consultarConteos().then((c) => {
+      if (c && !inscripcionConfirmada) {
+        conteos = c;
+        renderTorneos();
+        renderSelector();
       }
     });
 
-    $('comprobante-quitar').addEventListener('click', () => {
-      imagenLista = null;
-      $('comprobante').value = '';
-      $('comprobante-preview').classList.add('hidden');
-      $('comprobante-preview').classList.remove('flex');
-      $('comprobante-error').classList.add('hidden');
-    });
-    }
+    if (!APPS_SCRIPT_URL) {
+      $('form-inscripcion').innerHTML = `<p class="font-body leading-[1.7] text-humo">La inscripción online estará disponible muy pronto.
+        Mientras tanto, anotate por <a href="${INSTAGRAM_URL}" target="_blank" rel="noopener noreferrer" class="text-primario-glow underline hover:opacity-80">Instagram</a>.</p>`;
+    } else {
+      $('comentario').addEventListener('input', (e) => {
+        $('contador-comentario').textContent = `${e.target.value.length}/100`;
+      });
+      $('konami-id').addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '');
+      });
 
-    $('form-inscripcion').addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      const torneo = $('torneo-select').value;
-      const nombre = $('nombre').value;
-      const konamiId = $('konami-id').value.trim();
-      const comentario = $('comentario').value.replace(/[\r\n]+/g, ' ').trim().slice(0, 100);
-      let valido = true;
-      for (const [id, ok] of [['nombre', validarNombre(nombre)], ['konami-id', validarKonamiId(konamiId)]]) {
-        document.querySelector(`[data-error-for="${id}"]`).classList.toggle('hidden', ok);
-        $(id).setAttribute('aria-invalid', ok ? 'false' : 'true');
-        if (!ok) valido = false;
-      }
-      if (!validarComentario(comentario)) valido = false; // inalcanzable con maxlength, defensa extra
-      if (!valido || !torneo) return;
+      let imagenLista = null; // { b64, mime } tras comprimir, o null
+      let tokenCompresion = 0;
 
-      const btn = $('btn-inscribir');
-      btn.disabled = true;
-      btn.textContent = 'Enviando…';
-      try {
-        const res = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ torneo, nombre: nombre.trim(), konami_id: konamiId, comentario }),
-        });
-        const data = await res.json();
-        if (data.ok) {
-          inscripcionConfirmada = true;
-          conteos[torneo] = data.count;
-          if (imagenLista) {
-            btn.textContent = 'Inscripto ✓ subiendo comprobante…';
-            const subio = await subirComprobante(torneo, konamiId, nombre.trim(), imagenLista);
-            mostrarMensaje(subio ? 'ok_comprobante' : 'ok_sin_comprobante');
-          } else {
-            mostrarMensaje('ok');
-          }
-          $('form-inscripcion').reset();
-          $('contador-comentario').textContent = '0/100';
+      // Guarda por si un navegador con el HTML viejo cacheado (sin el campo comprobante) carga
+      // este JS nuevo durante la ventana del deploy: sin esta guarda, $('comprobante') sería null
+      // y rompería el formulario. Si el campo no existe, la inscripción funciona igual (sin foto).
+      const inputComprobante = $('comprobante');
+      if (inputComprobante) {
+      $('comprobante').addEventListener('change', async (e) => {
+        const token = ++tokenCompresion;
+        const file = e.target.files[0] ?? null;
+        const err = $('comprobante-error');
+        const v = validarImagen(file);
+        if (v.vacio) {
           imagenLista = null;
-          if (inputComprobante) {
-            $('comprobante-thumb').src = '';
-            $('comprobante-preview').classList.add('hidden');
-            $('comprobante-preview').classList.remove('flex');
-          }
-          renderTorneos();
-          renderSelector();
-        } else {
-          mostrarMensaje(data.error);
+          $('comprobante-preview').classList.add('hidden');
+          $('comprobante-preview').classList.remove('flex');
+          err.classList.add('hidden');
+          return;
         }
-      } catch {
-        mostrarMensaje('red');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Confirmar inscripción';
+        if (!v.ok) {
+          err.textContent = v.motivo === 'tipo' ? 'El archivo debe ser una imagen (JPG/PNG).' : 'La imagen es demasiado grande (máx. 10 MB).';
+          err.classList.remove('hidden');
+          $('comprobante').setAttribute('aria-invalid', 'true');
+          e.target.value = '';
+          imagenLista = null;
+          $('comprobante-preview').classList.add('hidden');
+          $('comprobante-preview').classList.remove('flex');
+          return;
+        }
+        err.classList.add('hidden');
+        $('comprobante').setAttribute('aria-invalid', 'false');
+        try {
+          const comprimida = await comprimirImagen(file);
+          if (token !== tokenCompresion) return; // una selección más nueva la reemplazó
+          imagenLista = comprimida;
+          $('comprobante-thumb').src = `data:${imagenLista.mime};base64,${imagenLista.b64}`;
+          $('comprobante-nombre').textContent = file.name;
+          $('comprobante-preview').classList.remove('hidden');
+          $('comprobante-preview').classList.add('flex');
+        } catch {
+          err.textContent = 'No se pudo procesar la imagen. Probá con otra.';
+          err.classList.remove('hidden');
+          imagenLista = null;
+        }
+      });
+
+      $('comprobante-quitar').addEventListener('click', () => {
+        imagenLista = null;
+        $('comprobante').value = '';
+        $('comprobante-preview').classList.add('hidden');
+        $('comprobante-preview').classList.remove('flex');
+        $('comprobante-error').classList.add('hidden');
+      });
       }
-    });
+
+      $('form-inscripcion').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const torneo = $('torneo-select').value;
+        const nombre = $('nombre').value;
+        const konamiId = $('konami-id').value.trim();
+        const comentario = $('comentario').value.replace(/[\r\n]+/g, ' ').trim().slice(0, 100);
+        let valido = true;
+        for (const [id, ok] of [['nombre', validarNombre(nombre)], ['konami-id', validarKonamiId(konamiId)]]) {
+          document.querySelector(`[data-error-for="${id}"]`).classList.toggle('hidden', ok);
+          $(id).setAttribute('aria-invalid', ok ? 'false' : 'true');
+          if (!ok) valido = false;
+        }
+        if (!validarComentario(comentario)) valido = false; // inalcanzable con maxlength, defensa extra
+        if (!valido || !torneo) return;
+
+        const btn = $('btn-inscribir');
+        btn.disabled = true;
+        btn.textContent = 'Enviando…';
+        try {
+          const res = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ torneo, nombre: nombre.trim(), konami_id: konamiId, comentario }),
+          });
+          const data = await res.json();
+          if (data.ok) {
+            inscripcionConfirmada = true;
+            conteos[torneo] = data.count;
+            if (imagenLista) {
+              btn.textContent = 'Inscripto ✓ subiendo comprobante…';
+              const subio = await subirComprobante(torneo, konamiId, nombre.trim(), imagenLista);
+              mostrarMensaje(subio ? 'ok_comprobante' : 'ok_sin_comprobante');
+            } else {
+              mostrarMensaje('ok');
+            }
+            $('form-inscripcion').reset();
+            $('contador-comentario').textContent = '0/100';
+            imagenLista = null;
+            if (inputComprobante) {
+              $('comprobante-thumb').src = '';
+              $('comprobante-preview').classList.add('hidden');
+              $('comprobante-preview').classList.remove('flex');
+            }
+            renderTorneos();
+            renderSelector();
+          } else {
+            mostrarMensaje(data.error);
+          }
+        } catch {
+          mostrarMensaje('red');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Confirmar inscripción';
+        }
+      });
+    }
   }
 }
