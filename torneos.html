@@ -55,26 +55,26 @@
           <div>
             <label for="nombre" class="font-body text-sm font-semibold text-humo">Nombre completo</label>
             <input id="nombre" name="nombre" type="text" autocomplete="name" required aria-describedby="error-nombre" aria-invalid="false"
-              class="mt-1.5 w-full rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/50 focus:border-primario"
+              class="mt-1.5 w-full rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/80 focus:border-primario"
               placeholder="Ej: Yugi Muto" />
             <p id="error-nombre" data-error-for="nombre" role="alert" class="mt-1.5 hidden font-body text-sm text-red-400">Ingresá tu nombre completo (mínimo 3 letras).</p>
           </div>
           <div>
             <label for="konami-id" class="font-body text-sm font-semibold text-humo">Konami ID (10 dígitos)</label>
             <input id="konami-id" name="konami_id" type="text" inputmode="numeric" maxlength="10" required aria-describedby="error-konami-id" aria-invalid="false"
-              class="mt-1.5 w-full rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/50 focus:border-primario"
+              class="mt-1.5 w-full rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/80 focus:border-primario"
               placeholder="Ej: 0123456789" />
             <p id="error-konami-id" data-error-for="konami-id" role="alert" class="mt-1.5 hidden font-body text-sm text-red-400">El Konami ID son exactamente 10 números (figura en tu tarjeta de Konami).</p>
           </div>
           <div>
-            <label for="comentario" class="font-body text-sm font-semibold text-humo">Comentario <span class="font-normal text-humo/70">(opcional)</span></label>
+            <label for="comentario" class="font-body text-sm font-semibold text-humo">Comentario <span class="font-normal text-humo">(opcional)</span></label>
             <textarea id="comentario" name="comentario" maxlength="100" rows="2"
-              class="mt-1.5 w-full resize-none rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/50 focus:border-primario"
+              class="mt-1.5 w-full resize-none rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/80 focus:border-primario"
               placeholder="Ej: ya transferí / pago en efectivo el día del torneo"></textarea>
-            <p id="contador-comentario" class="mt-1 text-right font-body text-xs text-humo/70" aria-hidden="true">0/100</p>
+            <p id="contador-comentario" class="mt-1 text-right font-body text-xs text-humo" aria-hidden="true">0/100</p>
           </div>
           <div>
-            <label for="comprobante" class="font-body text-sm font-semibold text-humo">Comprobante de pago <span class="font-normal text-humo/70">(opcional)</span></label>
+            <label for="comprobante" class="font-body text-sm font-semibold text-humo">Comprobante de pago <span class="font-normal text-humo">(opcional)</span></label>
             <input id="comprobante" name="comprobante" type="file" accept="image/jpeg,image/png,image/webp"
               aria-describedby="comprobante-error" aria-invalid="false"
               class="mt-1.5 block w-full cursor-pointer rounded-lg border border-borde bg-noche px-4 py-3 font-body text-sm text-humo file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-primario file:px-4 file:py-1.5 file:font-display file:text-xs file:font-semibold file:text-white hover:file:opacity-90 focus:border-primario" />

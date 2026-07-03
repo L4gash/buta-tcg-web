@@ -55,10 +55,10 @@ function tarjetaTorneo(t) {
     <article class="flex flex-col rounded-2xl border ${lleno ? 'border-borde' : 'border-primario/40'} bg-tinta/70 p-6 ${lleno ? 'shadow-card' : 'shadow-glow-azul'}">
       <h3 class="font-display text-xl font-bold italic text-white">${esc(t.nombre)}</h3>
       <dl class="mt-4 grid gap-3 font-body text-sm text-humo">
-        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">📅 Fecha y hora</dt><dd class="mt-0.5 text-white">${esc(fmtFecha(t.fecha))} · ${esc(t.hora)} hs</dd></div>
-        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">📍 Lugar</dt><dd class="mt-0.5 text-white">${esc(t.lugar)}</dd></div>
-        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">🃏 Formato y reglas</dt><dd class="mt-0.5 text-white">${esc(t.formato)}<br />${esc(t.reglas)}</dd></div>
-        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo/70">💰 Precio · 🏆 Premios</dt><dd class="mt-0.5 text-white">${esc(t.precio || 'A confirmar')}<br />${esc(t.premios)}</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo">📅 Fecha y hora</dt><dd class="mt-0.5 text-white">${esc(fmtFecha(t.fecha))} · ${esc(t.hora)} hs</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo">📍 Lugar</dt><dd class="mt-0.5 text-white">${esc(t.lugar)}</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo">🃏 Formato y reglas</dt><dd class="mt-0.5 text-white">${esc(t.formato)}<br />${esc(t.reglas)}</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo">💰 Precio · 🏆 Premios</dt><dd class="mt-0.5 text-white">${esc(t.precio || 'A confirmar')}<br />${esc(t.premios)}</dd></div>
       </dl>
       ${alias ? `
       <div class="mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-borde bg-noche/60 px-3 py-2 font-body text-sm text-humo">

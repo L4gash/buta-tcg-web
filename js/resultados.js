@@ -91,5 +91,9 @@ const cerrar = () => {
 $('cerrar-lightbox').addEventListener('click', cerrar);
 $('lightbox').addEventListener('click', (e) => { if (e.target === $('lightbox')) cerrar(); });
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !$('lightbox').classList.contains('hidden')) cerrar();
+  if ($('lightbox').classList.contains('hidden')) return;
+  if (e.key === 'Escape') cerrar();
+  // Trampa de foco: el único elemento enfocable del diálogo es el botón cerrar;
+  // sin esto, Tab se escapa a la página de fondo con el modal abierto.
+  if (e.key === 'Tab') { e.preventDefault(); $('cerrar-lightbox').focus(); }
 });
