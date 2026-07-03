@@ -17,7 +17,8 @@ Sin la planilla conectada, la web funciona igual mostrando los datos de respaldo
 
 | Carpeta / archivo | Qué es |
 |---|---|
-| `index.html`, `torneos.html`, `resultados.html`, `nosotros.html` | Las 4 páginas del sitio |
+| `index.html`, `torneos.html`, `resultados.html`, `ranking.html`, `nosotros.html` | Las 5 páginas del sitio (más `404.html`) |
+| `js/layout.js` | Header y footer compartidos (una sola fuente para todas las páginas) |
 | `js/config.js` | Acá se pegan los links de la planilla (ver guía) |
 | `assets/results/` | Fotos de los tops (subir acá las fotos nuevas, en minúsculas y sin espacios) |
 | `apps-script/Code.gs` | El código que se pega en Google Apps Script (ver guía, paso 3) |
@@ -26,6 +27,8 @@ Sin la planilla conectada, la web funciona igual mostrando los datos de respaldo
 
 ## Para desarrolladores
 
-- Sin build: HTML + Tailwind CDN + JS vanilla (ES modules).
+- HTML + Tailwind compilado + JS vanilla (ES modules).
+- **Si agregás o cambiás clases de Tailwind**: correr `npm run build:css` y commitear
+  `css/tailwind.css` (GitHub Pages lo sirve tal cual, sin CI).
 - Tests: `npm test` (Node 18+; el proyecto usa `node --test`).
 - Capturas: `node screenshot.mjs http://localhost:3000 [etiqueta] [ANCHOxALTO]`
