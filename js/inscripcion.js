@@ -2,20 +2,11 @@ import { loadTorneos, pickProximos, esc } from './data.js';
 import { validarNombre, validarKonamiId, validarComentario } from './validation.js';
 import { APPS_SCRIPT_URL, INSTAGRAM_URL } from './config.js';
 import { validarImagen, comprimirImagen } from './imagen.js';
+import { leerPerfilGuardado, leerInscripciones } from './perfil.js';
+import { etiquetaCuentaRegresiva, urlGoogleCalendar } from './calendario.js';
 
-export function leerPerfilGuardado(raw) {
-  if (!raw) return null;
-  try {
-    const obj = JSON.parse(raw);
-    if (typeof obj !== 'object' || obj === null) return null;
-    const nombre = String(obj.nombre ?? '');
-    const konami_id = String(obj.konami_id ?? '');
-    if (!nombre && !konami_id) return null;
-    return { nombre, konami_id };
-  } catch {
-    return null;
-  }
-}
+// Compatibilidad: leerPerfilGuardado vivía acá; ahora está en js/perfil.js.
+export { leerPerfilGuardado } from './perfil.js';
 
 const MENSAJES = {
   ok: '✓ ¡Inscripción confirmada! Nos vemos en el torneo.',
@@ -37,6 +28,7 @@ const fmtFecha = (iso) => {
 
 let proximos = [];
 let conteos = {}; // nombre torneo -> inscriptos (number) cuando se conoce
+let misInscripciones = {}; // nombre torneo -> true si este navegador ya se inscribió
 
 const estaLleno = (t) => {
   const cupo = Number(t.cupo_maximo) || 0;
@@ -51,15 +43,20 @@ function tarjetaTorneo(t) {
   const lleno = estaLleno(t);
   const alias = (t.alias ?? '').trim();
   const puedeCopiar = !!navigator.clipboard;
+  const cuenta = etiquetaCuentaRegresiva(t.fecha);
+  const calUrl = urlGoogleCalendar(t);
+  const premios = String(t.premios ?? '').trim();
   return `
     <article class="flex flex-col rounded-2xl border ${lleno ? 'border-borde' : 'border-primario/40'} bg-tinta/70 p-6 ${lleno ? 'shadow-card' : 'shadow-glow-azul'}">
       <h3 class="font-display text-xl font-bold italic text-white">${esc(t.nombre)}</h3>
+      ${cuenta ? `<p class="mt-2 inline-flex w-fit items-center gap-1.5 rounded-full bg-violeta/15 px-3 py-1 font-display text-xs font-semibold text-violeta-glow">⏳ ${cuenta}</p>` : ''}
       <dl class="mt-4 grid gap-3 font-body text-sm text-humo">
         <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo">📅 Fecha y hora</dt><dd class="mt-0.5 text-white">${esc(fmtFecha(t.fecha))} · ${esc(t.hora)} hs</dd></div>
         <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo">📍 Lugar</dt><dd class="mt-0.5 text-white">${esc(t.lugar)}</dd></div>
         <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo">🃏 Formato y reglas</dt><dd class="mt-0.5 text-white">${esc(t.formato)}<br />${esc(t.reglas)}</dd></div>
-        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo">💰 Precio · 🏆 Premios</dt><dd class="mt-0.5 text-white">${esc(t.precio || 'A confirmar')}<br />${esc(t.premios)}</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-widest text-humo">💰 Precio · 🏆 Premios</dt><dd class="mt-0.5 text-white">${esc(t.precio || 'A confirmar')}${premios ? `<br />${esc(premios)}` : ''}</dd></div>
       </dl>
+      ${calUrl ? `<a href="${esc(calUrl)}" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex w-fit items-center gap-2 rounded-full border border-borde px-4 py-2 font-body text-sm font-semibold text-humo hover:border-primario hover:text-white">📅 Agregar al calendario</a>` : ''}
       ${alias ? `
       <div class="mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-borde bg-noche/60 px-3 py-2 font-body text-sm text-humo">
         <span>💳 Transferencias: <strong class="text-white">${esc(alias)}</strong></span>
@@ -72,6 +69,7 @@ function tarjetaTorneo(t) {
         </div>
         <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-noche"><div class="h-full rounded-full bg-gradient-to-r from-primario to-violeta" style="width:${pct}%"></div></div>
       </div>
+      ${misInscripciones[t.nombre] ? `<p class="mt-4 rounded-lg border border-emerald-700/50 bg-emerald-950/80 px-4 py-2.5 text-center font-body text-sm text-emerald-300">✓ Ya estás anotado a este torneo</p>` : ''}
       <button type="button" class="btn-elegir-torneo mt-5 rounded-full ${lleno ? 'cursor-not-allowed border border-borde text-humo/60' : 'bg-gradient-to-r from-primario to-violeta text-white shadow-glow-azul hover:opacity-90'} px-6 py-2.5 font-display font-semibold italic" data-torneo="${esc(t.nombre)}" ${lleno ? 'disabled' : ''}>
         ${lleno ? 'Cupo lleno' : 'Inscribirme ↓'}
       </button>
@@ -155,6 +153,8 @@ async function subirComprobante(torneo, konamiId, nombre, imagen) {
 
 // Only initialize DOM if in browser environment
 if (typeof document !== 'undefined') {
+  misInscripciones = leerInscripciones(localStorage.getItem('buta_inscripciones'));
+
   // Copiar alias (delegado: las tarjetas se re-renderizan)
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('.btn-copiar-alias');
@@ -294,6 +294,8 @@ if (typeof document !== 'undefined') {
           if (data.ok) {
             inscripcionConfirmada = true;
             localStorage.setItem('buta_jugador', JSON.stringify({ nombre: nombre.trim(), konami_id: konamiId }));
+            misInscripciones[torneo] = true;
+            localStorage.setItem('buta_inscripciones', JSON.stringify(misInscripciones));
             conteos[torneo] = data.count;
             if (imagenLista) {
               btn.textContent = 'Inscripto ✓ subiendo comprobante…';
