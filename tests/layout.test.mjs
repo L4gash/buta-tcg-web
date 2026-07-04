@@ -2,9 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { navHtml, footerHtml, paginaActiva, PAGINAS } from '../js/layout.js';
 
-test('PAGINAS incluye las 5 páginas del sitio', () => {
+test('PAGINAS incluye las 6 páginas del sitio', () => {
   assert.deepEqual(PAGINAS.map((p) => p.archivo), [
-    'index.html', 'torneos.html', 'resultados.html', 'ranking.html', 'nosotros.html',
+    'index.html', 'torneos.html', 'resultados.html', 'ranking.html', 'jugadores.html', 'nosotros.html',
   ]);
 });
 
@@ -13,9 +13,9 @@ test('paginaActiva: resuelve el archivo desde el pathname', () => {
   assert.equal(paginaActiva('/buta-tcg-web/ranking.html'), 'ranking.html');
 });
 
-test('paginaActiva: jugador.html marca Ranking como sección activa', () => {
-  assert.equal(paginaActiva('/jugador.html'), 'ranking.html');
-  assert.equal(paginaActiva('/buta-tcg-web/jugador.html'), 'ranking.html');
+test('paginaActiva: jugador.html marca Jugadores como sección activa', () => {
+  assert.equal(paginaActiva('/jugador.html'), 'jugadores.html');
+  assert.equal(paginaActiva('/buta-tcg-web/jugador.html'), 'jugadores.html');
 });
 
 test('paginaActiva: la raíz y rutas desconocidas mapean a index.html', () => {
@@ -31,7 +31,7 @@ test('navHtml: marca la página activa con aria-current', () => {
   assert.equal(html.match(/aria-current/g).length, 1);
 });
 
-test('navHtml: contiene los 5 links', () => {
+test('navHtml: contiene los 6 links de página', () => {
   const html = navHtml('index.html');
   for (const p of PAGINAS) assert.ok(html.includes(`href="${p.archivo}"`), `falta link a ${p.archivo}`);
 });
@@ -53,6 +53,15 @@ test('navHtml: "Pedidos" queda entre Ranking y Nosotros', () => {
   const posPedidos = html.indexOf('>Pedidos<');
   const posNosotros = html.indexOf('>Nosotros<');
   assert.ok(posRanking < posPedidos && posPedidos < posNosotros);
+});
+
+test('navHtml: el orden final es Ranking, Pedidos, Jugadores, Nosotros', () => {
+  const html = navHtml('index.html');
+  const posRanking = html.indexOf('>Ranking<');
+  const posPedidos = html.indexOf('>Pedidos<');
+  const posJugadores = html.indexOf('>Jugadores<');
+  const posNosotros = html.indexOf('>Nosotros<');
+  assert.ok(posRanking < posPedidos && posPedidos < posJugadores && posJugadores < posNosotros);
 });
 
 test('footerHtml: contiene Instagram y el aviso de Konami', () => {

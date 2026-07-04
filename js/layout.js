@@ -8,11 +8,12 @@ export const PAGINAS = [
   { archivo: 'torneos.html', etiqueta: 'Torneos' },
   { archivo: 'resultados.html', etiqueta: 'Resultados' },
   { archivo: 'ranking.html', etiqueta: 'Ranking' },
+  { archivo: 'jugadores.html', etiqueta: 'Jugadores' },
   { archivo: 'nosotros.html', etiqueta: 'Nosotros' },
 ];
 
 // Páginas que no están en el nav pero "pertenecen" a una sección de él.
-const ALIAS = { 'jugador.html': 'ranking.html' };
+const ALIAS = { 'jugador.html': 'jugadores.html' };
 
 // Link externo del nav: la web de pedidos de cartas la administra otra
 // persona (Mariano), fuera de este repo. No es una página del sitio, así

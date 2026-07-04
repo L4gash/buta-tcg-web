@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- BUTA TCG · sitio original · build BTCG-2026-aabb1727 · butatcg en Instagram -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jugadores — BUTA TCG</title>
+  <meta name="description" content="Todos los jugadores que participaron en los torneos de BUTA TCG en Córdoba. Entrá a cada perfil para ver su historial." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="BUTA TCG" />
+  <meta property="og:title" content="Jugadores — BUTA TCG" />
+  <meta property="og:description" content="Todos los jugadores que participaron en los torneos de BUTA TCG en Córdoba. Entrá a cada perfil para ver su historial." />
+  <meta property="og:url" content="https://l4gash.github.io/buta-tcg-web/jugadores.html" />
+  <meta property="og:image" content="https://l4gash.github.io/buta-tcg-web/assets/logo-butatcg.png" />
+  <meta property="og:locale" content="es_AR" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" type="image/png" href="assets/logo-butatcg.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#05060f" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,600;1,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tailwind.css" />
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/custom.css" />
+</head>
+<body class="min-h-screen bg-noche font-body text-white antialiased">
+
+  <script type="module" src="js/layout.js"></script>
+
+  <header id="site-header" class="sticky top-0 z-40 border-b border-borde/60 bg-noche/80 backdrop-blur-md"></header>
+
+  <main class="mx-auto max-w-4xl px-4">
+
+    <section class="pb-4 pt-12 text-center">
+      <p class="font-display text-xs font-semibold uppercase tracking-[0.3em] text-violeta-glow">Comunidad</p>
+      <h1 class="texto-neon mt-3 font-display text-3xl font-bold italic text-white sm:text-5xl" style="letter-spacing:-0.03em;">Jugadores</h1>
+      <p id="cantidad-jugadores" class="mt-4 font-body text-sm text-humo"></p>
+    </section>
+
+    <section class="py-6">
+      <label for="buscar-jugadores" class="sr-only">Buscar jugador</label>
+      <input id="buscar-jugadores" type="search" placeholder="🔍 Buscá un jugador…" autocomplete="off"
+        class="mx-auto mb-5 block w-full max-w-xs rounded-lg border border-borde bg-tinta px-4 py-2.5 font-body text-sm text-white placeholder-humo/80 focus:border-primario" />
+      <div id="lista-jugadores"><div class="skeleton h-96 w-full"></div></div>
+    </section>
+
+  </main>
+
+  <footer id="site-footer" class="mt-20 border-t border-borde/60 py-10"></footer>
+
+  <script type="module" src="js/jugadores.js"></script>
+
+</body>
+</html>
