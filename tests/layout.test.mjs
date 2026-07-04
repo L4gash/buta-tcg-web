@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { navHtml, footerHtml, paginaActiva, PAGINAS } from '../js/layout.js';
+import { navHtml, footerHtml, paginaActiva, flechaVolverHtml, PAGINAS } from '../js/layout.js';
 
 test('PAGINAS incluye las 6 páginas del sitio', () => {
   assert.deepEqual(PAGINAS.map((p) => p.archivo), [
@@ -47,21 +47,39 @@ test('navHtml: "Pedidos" nunca lleva aria-current (no es una página del sitio)'
   assert.ok(!enlacePedidos.includes('aria-current'));
 });
 
-test('navHtml: "Pedidos" queda entre Ranking y Nosotros', () => {
+test('navHtml: "Pedidos" queda entre Jugadores y Nosotros', () => {
   const html = navHtml('index.html');
-  const posRanking = html.indexOf('>Ranking<');
+  const posJugadores = html.indexOf('>Jugadores<');
   const posPedidos = html.indexOf('>Pedidos<');
   const posNosotros = html.indexOf('>Nosotros<');
-  assert.ok(posRanking < posPedidos && posPedidos < posNosotros);
+  assert.ok(posJugadores < posPedidos && posPedidos < posNosotros);
 });
 
-test('navHtml: el orden final es Ranking, Pedidos, Jugadores, Nosotros', () => {
+test('navHtml: el orden final es Ranking, Jugadores, Pedidos, Nosotros', () => {
   const html = navHtml('index.html');
   const posRanking = html.indexOf('>Ranking<');
-  const posPedidos = html.indexOf('>Pedidos<');
   const posJugadores = html.indexOf('>Jugadores<');
+  const posPedidos = html.indexOf('>Pedidos<');
   const posNosotros = html.indexOf('>Nosotros<');
-  assert.ok(posRanking < posPedidos && posPedidos < posJugadores && posJugadores < posNosotros);
+  assert.ok(posRanking < posJugadores && posJugadores < posPedidos && posPedidos < posNosotros);
+});
+
+test('flechaVolverHtml: vacía en index.html (ya está en el inicio)', () => {
+  assert.equal(flechaVolverHtml('index.html'), '');
+});
+
+test('flechaVolverHtml: jugador.html vuelve a Jugadores, no a Inicio', () => {
+  const html = flechaVolverHtml('jugador.html');
+  assert.match(html, /href="jugadores\.html"/);
+  assert.ok(html.includes('Jugadores'));
+});
+
+test('flechaVolverHtml: el resto de las páginas vuelve a Inicio', () => {
+  for (const archivo of ['torneos.html', 'resultados.html', 'ranking.html', 'jugadores.html', 'nosotros.html']) {
+    const html = flechaVolverHtml(archivo);
+    assert.match(html, /href="index\.html"/, `${archivo} no vuelve a index.html`);
+    assert.ok(html.includes('Inicio'), `${archivo} no dice "Inicio"`);
+  }
 });
 
 test('footerHtml: contiene Instagram y el aviso de Konami', () => {

@@ -20,12 +20,30 @@ const ALIAS = { 'jugador.html': 'jugadores.html' };
 // que nunca lleva aria-current y abre en pestaña nueva.
 const ENLACE_PEDIDOS = { href: 'https://marianocbt.github.io/butatcg/', etiqueta: 'Pedidos' };
 
-// Resuelve qué página está activa a partir del pathname (funciona en local y en
-// GitHub Pages con prefijo /buta-tcg-web/). Desconocido o raíz => index.
+// Nombre de archivo literal a partir del pathname (sin resolver alias).
+// Funciona en local y en GitHub Pages con prefijo /buta-tcg-web/.
+function archivoDesdePath(pathname) {
+  return String(pathname ?? '').split('/').pop() || 'index.html';
+}
+
+// Resuelve qué página está activa a partir del pathname. Desconocido o raíz => index.
 export function paginaActiva(pathname) {
-  const archivo = String(pathname ?? '').split('/').pop();
+  const archivo = archivoDesdePath(pathname);
   if (ALIAS[archivo]) return ALIAS[archivo];
   return PAGINAS.some((p) => p.archivo === archivo) ? archivo : 'index.html';
+}
+
+// A dónde vuelve la flecha "atrás" de cada página (siempre el archivo literal,
+// nunca el alias): jugador.html es el perfil individual, así que vuelve al
+// directorio de Jugadores en vez de al inicio. index.html no lleva flecha
+// porque ya es el inicio.
+const VOLVER = { 'jugador.html': { href: 'jugadores.html', etiqueta: 'Jugadores' } };
+const VOLVER_POR_DEFECTO = { href: 'index.html', etiqueta: 'Inicio' };
+
+export function flechaVolverHtml(archivo) {
+  if (archivo === 'index.html') return '';
+  const { href, etiqueta } = VOLVER[archivo] ?? VOLVER_POR_DEFECTO;
+  return `<a href="${href}" class="inline-flex items-center gap-1.5 font-body text-sm text-humo hover:text-primario-glow">← ${etiqueta}</a>`;
 }
 
 // En celular el logo ocupa la primera fila y los links pasan a una segunda fila
@@ -36,8 +54,8 @@ export function navHtml(activa) {
     const esActiva = archivo === activa;
     const html = `<a href="${archivo}"${esActiva ? ' aria-current="page"' : ''} class="rounded-md px-2 py-2.5 ${esActiva ? 'text-white' : 'text-humo'} hover:text-primario-glow sm:px-3">${etiqueta}</a>`;
     // Pedidos lo administra otra persona (Mariano), fuera de este repo; va
-    // justo después de Ranking en el nav.
-    return archivo === 'ranking.html' ? [html, enlacePedidosHtml] : [html];
+    // justo después de Jugadores en el nav.
+    return archivo === 'jugadores.html' ? [html, enlacePedidosHtml] : [html];
   }).join('');
   return `
     <nav class="mx-auto flex max-w-6xl flex-wrap items-center justify-between px-4 pt-3 pb-1 sm:py-3" aria-label="Principal">
@@ -68,10 +86,13 @@ export function footerHtml() {
 
 // Inyección en el DOM (solo navegador; los tests importan las funciones puras).
 if (typeof document !== 'undefined') {
+  const archivo = archivoDesdePath(location.pathname);
   const header = document.getElementById('site-header');
   const footer = document.getElementById('site-footer');
+  const volver = document.getElementById('volver');
   if (header) header.innerHTML = navHtml(paginaActiva(location.pathname));
   if (footer) footer.innerHTML = footerHtml();
+  if (volver) volver.innerHTML = flechaVolverHtml(archivo);
 
   // PWA: el service worker da respaldo offline (network-first, ver sw.js).
   // Se registra al terminar la carga para no competir con el arranque.
