@@ -14,6 +14,11 @@ export const PAGINAS = [
 // Páginas que no están en el nav pero "pertenecen" a una sección de él.
 const ALIAS = { 'jugador.html': 'ranking.html' };
 
+// Link externo del nav: la web de pedidos de cartas la administra otra
+// persona (Mariano), fuera de este repo. No es una página del sitio, así
+// que nunca lleva aria-current y abre en pestaña nueva.
+const ENLACE_PEDIDOS = { href: 'https://marianocbt.github.io/butatcg/', etiqueta: 'Pedidos' };
+
 // Resuelve qué página está activa a partir del pathname (funciona en local y en
 // GitHub Pages con prefijo /buta-tcg-web/). Desconocido o raíz => index.
 export function paginaActiva(pathname) {
@@ -25,9 +30,13 @@ export function paginaActiva(pathname) {
 // En celular el logo ocupa la primera fila y los links pasan a una segunda fila
 // a lo ancho (w-full + flex-wrap en el nav). En sm+ vuelve a ser una sola fila.
 export function navHtml(activa) {
-  const links = PAGINAS.map(({ archivo, etiqueta }) => {
+  const enlacePedidosHtml = `<a href="${ENLACE_PEDIDOS.href}" target="_blank" rel="noopener noreferrer" class="rounded-md px-2 py-2.5 text-humo hover:text-primario-glow sm:px-3">${ENLACE_PEDIDOS.etiqueta}</a>`;
+  const links = PAGINAS.flatMap(({ archivo, etiqueta }) => {
     const esActiva = archivo === activa;
-    return `<a href="${archivo}"${esActiva ? ' aria-current="page"' : ''} class="rounded-md px-2 py-2.5 ${esActiva ? 'text-white' : 'text-humo'} hover:text-primario-glow sm:px-3">${etiqueta}</a>`;
+    const html = `<a href="${archivo}"${esActiva ? ' aria-current="page"' : ''} class="rounded-md px-2 py-2.5 ${esActiva ? 'text-white' : 'text-humo'} hover:text-primario-glow sm:px-3">${etiqueta}</a>`;
+    // Pedidos lo administra otra persona (Mariano), fuera de este repo; va
+    // justo después de Ranking en el nav.
+    return archivo === 'ranking.html' ? [html, enlacePedidosHtml] : [html];
   }).join('');
   return `
     <nav class="mx-auto flex max-w-6xl flex-wrap items-center justify-between px-4 pt-3 pb-1 sm:py-3" aria-label="Principal">

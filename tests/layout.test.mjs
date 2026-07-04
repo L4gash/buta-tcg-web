@@ -36,6 +36,25 @@ test('navHtml: contiene los 5 links', () => {
   for (const p of PAGINAS) assert.ok(html.includes(`href="${p.archivo}"`), `falta link a ${p.archivo}`);
 });
 
+test('navHtml: link externo "Pedidos" apunta al sitio de pedidos y abre en pestaña nueva', () => {
+  const html = navHtml('index.html');
+  assert.match(html, /<a href="https:\/\/marianocbt\.github\.io\/butatcg\/"[^>]*target="_blank"[^>]*rel="noopener noreferrer"[^>]*>Pedidos<\/a>/);
+});
+
+test('navHtml: "Pedidos" nunca lleva aria-current (no es una página del sitio)', () => {
+  const html = navHtml('ranking.html');
+  const enlacePedidos = html.match(/<a href="https:\/\/marianocbt\.github\.io\/butatcg\/"[^>]*>Pedidos<\/a>/)[0];
+  assert.ok(!enlacePedidos.includes('aria-current'));
+});
+
+test('navHtml: "Pedidos" queda entre Ranking y Nosotros', () => {
+  const html = navHtml('index.html');
+  const posRanking = html.indexOf('>Ranking<');
+  const posPedidos = html.indexOf('>Pedidos<');
+  const posNosotros = html.indexOf('>Nosotros<');
+  assert.ok(posRanking < posPedidos && posPedidos < posNosotros);
+});
+
 test('footerHtml: contiene Instagram y el aviso de Konami', () => {
   const html = footerHtml();
   assert.ok(html.includes('instagram.com/butatcg'));
