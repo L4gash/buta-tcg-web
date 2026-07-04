@@ -11,10 +11,14 @@ export const PAGINAS = [
   { archivo: 'nosotros.html', etiqueta: 'Nosotros' },
 ];
 
+// Páginas que no están en el nav pero "pertenecen" a una sección de él.
+const ALIAS = { 'jugador.html': 'ranking.html' };
+
 // Resuelve qué página está activa a partir del pathname (funciona en local y en
 // GitHub Pages con prefijo /buta-tcg-web/). Desconocido o raíz => index.
 export function paginaActiva(pathname) {
   const archivo = String(pathname ?? '').split('/').pop();
+  if (ALIAS[archivo]) return ALIAS[archivo];
   return PAGINAS.some((p) => p.archivo === archivo) ? archivo : 'index.html';
 }
 

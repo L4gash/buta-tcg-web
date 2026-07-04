@@ -27,7 +27,7 @@ function fila(r) {
   return `
     <div role="row" ${esVos ? 'id="fila-vos"' : ''} class="grid grid-cols-[2.5rem_1fr_auto] items-center gap-x-3 border-t ${borde} px-3 py-3 sm:grid-cols-[3rem_1fr_5rem_6rem_7rem]">
       <span role="cell" class="font-display text-lg font-bold ${colPos}">${medalla}${pos || ''}</span>
-      <span role="cell" class="min-w-0 truncate font-display font-bold italic text-white">${nombre}${chipVos}</span>
+      <span role="cell" class="min-w-0 truncate font-display font-bold italic"><a href="jugador.html?nombre=${encodeURIComponent(r.Jugador ?? '')}" class="text-white hover:text-primario-glow">${nombre}</a>${chipVos}</span>
       <span role="cell" class="text-right font-display text-xl font-bold text-primario-glow sm:text-center sm:text-base">${pl}<span class="ml-1 font-body text-[0.6rem] font-normal text-humo sm:hidden">PL</span></span>
       <span role="cell" class="hidden text-center font-body text-sm text-humo sm:block">${torneos}</span>
       <span role="cell" class="hidden text-right font-body text-sm text-humo sm:block">${fecha}</span>

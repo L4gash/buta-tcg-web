@@ -13,6 +13,11 @@ test('paginaActiva: resuelve el archivo desde el pathname', () => {
   assert.equal(paginaActiva('/buta-tcg-web/ranking.html'), 'ranking.html');
 });
 
+test('paginaActiva: jugador.html marca Ranking como sección activa', () => {
+  assert.equal(paginaActiva('/jugador.html'), 'ranking.html');
+  assert.equal(paginaActiva('/buta-tcg-web/jugador.html'), 'ranking.html');
+});
+
 test('paginaActiva: la raíz y rutas desconocidas mapean a index.html', () => {
   assert.equal(paginaActiva('/'), 'index.html');
   assert.equal(paginaActiva('/buta-tcg-web/'), 'index.html');
