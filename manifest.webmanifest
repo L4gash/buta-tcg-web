@@ -1,0 +1,16 @@
+{
+  "name": "BUTA TCG — Torneos de Yu-Gi-Oh! en Córdoba",
+  "short_name": "BUTA TCG",
+  "description": "Torneos de Yu-Gi-Oh! TCG en Córdoba: inscripción online, resultados y ranking de liga.",
+  "lang": "es-AR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#05060f",
+  "theme_color": "#05060f",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

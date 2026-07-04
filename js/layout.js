@@ -62,4 +62,12 @@ if (typeof document !== 'undefined') {
   const footer = document.getElementById('site-footer');
   if (header) header.innerHTML = navHtml(paginaActiva(location.pathname));
   if (footer) footer.innerHTML = footerHtml();
+
+  // PWA: el service worker da respaldo offline (network-first, ver sw.js).
+  // Se registra al terminar la carga para no competir con el arranque.
+  if ('serviceWorker' in navigator) {
+    addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => { /* sin SW se navega igual */ });
+    });
+  }
 }

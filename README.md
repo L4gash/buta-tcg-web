@@ -24,6 +24,8 @@ Sin la planilla conectada, la web funciona igual mostrando los datos de respaldo
 | `apps-script/Code.gs` | El código que se pega en Google Apps Script (ver guía, paso 3) |
 | `docs/sheets-template/` | CSVs para importar en la planilla la primera vez |
 | `scripts/optimize-images.mjs` | Achica y renombra fotos nuevas (`node scripts/optimize-images.mjs`) |
+| `manifest.webmanifest`, `sw.js` | PWA: el sitio se instala en el celular y abre sin señal (network-first) |
+| `scripts/generar-iconos-pwa.mjs` | Regenera los íconos de la PWA desde el logo (si el logo cambia) |
 
 ## Para desarrolladores
 
