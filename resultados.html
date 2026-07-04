@@ -36,9 +36,18 @@
     <section class="pb-4 pt-12 text-center">
       <p class="font-display text-xs font-semibold uppercase tracking-[0.3em] text-violeta-glow">Salón de la fama</p>
       <h1 class="texto-neon mt-3 font-display text-3xl font-bold italic text-white sm:text-5xl" style="letter-spacing:-0.03em;">Resultados de torneos</h1>
-      <div class="mt-8 flex justify-center">
-        <select id="selector-torneo" aria-label="Elegir torneo"
-          class="rounded-lg border border-borde bg-tinta px-4 py-2.5 font-body text-white focus:border-primario"></select>
+      <div class="mx-auto mt-8 max-w-xs">
+        <label for="buscar-fecha" class="sr-only">Buscar torneo por fecha o nombre</label>
+        <input id="buscar-fecha" type="search" placeholder="🔍 Buscá una fecha o torneo…" autocomplete="off"
+          class="w-full rounded-lg border border-borde bg-tinta px-4 py-2.5 font-body text-sm text-white placeholder-humo/80 focus:border-primario" />
+        <p id="sin-fechas" class="mt-2 hidden text-center font-body text-sm text-humo">No encontramos fechas con ese filtro.</p>
+      </div>
+      <div class="relative mx-auto mt-4 max-w-2xl">
+        <button type="button" id="carrusel-izq" aria-label="Fechas anteriores"
+          class="absolute left-0 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-borde bg-noche/80 text-lg text-white backdrop-blur hover:border-primario hover:bg-tinta">‹</button>
+        <div id="carrusel-fechas" class="carrusel-fechas flex gap-3 overflow-x-auto scroll-smooth px-11 py-1" aria-label="Elegir torneo"></div>
+        <button type="button" id="carrusel-der" aria-label="Fechas siguientes"
+          class="absolute right-0 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-borde bg-noche/80 text-lg text-white backdrop-blur hover:border-primario hover:bg-tinta">›</button>
       </div>
     </section>
 

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizarNombre, coincideJugador, filtrarPorNombre } from '../js/buscar.js';
+import { normalizarNombre, coincideJugador, filtrarPorNombre, coincideTexto } from '../js/buscar.js';
 
 test('normalizarNombre: minúsculas, sin tildes, sin espacios sobrantes', () => {
   assert.equal(normalizarNombre('  Juanny GORDILLO '), 'juanny gordillo');
@@ -31,4 +31,15 @@ test('filtrarPorNombre: busca por subcadena normalizada', () => {
 test('filtrarPorNombre: consulta vacía devuelve todas las filas', () => {
   assert.equal(filtrarPorNombre(FILAS, '').length, 3);
   assert.equal(filtrarPorNombre(FILAS, '   ').length, 3);
+});
+
+test('coincideTexto: subcadena ignorando tildes y mayúsculas', () => {
+  assert.ok(coincideTexto('Buta Córdoba 27/06 Avanzado 2026', '06'));
+  assert.ok(coincideTexto('Buta Córdoba 27/06 Avanzado 2026', 'CORDOBA'));
+  assert.ok(!coincideTexto('Buta Córdoba 27/06 Avanzado 2026', '99'));
+});
+
+test('coincideTexto: consulta vacía siempre coincide', () => {
+  assert.ok(coincideTexto('cualquier cosa', ''));
+  assert.ok(coincideTexto('', ''));
 });

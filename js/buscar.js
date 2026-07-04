@@ -16,3 +16,11 @@ export const filtrarPorNombre = (rows, consulta) => {
   const n = normalizarNombre(consulta);
   return n ? rows.filter((r) => normalizarNombre(r?.Jugador).includes(n)) : rows;
 };
+
+// ¿`consulta` aparece como subcadena de `texto`? (ignora tildes/mayúsculas).
+// Consulta vacía siempre coincide. Genérico: lo usa el buscador de fechas de
+// Resultados sobre el nombre del torneo, no solo nombres de jugador.
+export const coincideTexto = (texto, consulta) => {
+  const q = normalizarNombre(consulta);
+  return q === '' || normalizarNombre(texto).includes(q);
+};

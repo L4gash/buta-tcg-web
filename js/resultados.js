@@ -1,5 +1,7 @@
 import { loadResultados, groupResultados, esc, tieneFoto, deckVisible } from './data.js';
 import { contarDecks } from './meta-decks.js';
+import { extraerFechaCorta } from './fecha-torneo.js';
+import { coincideTexto } from './buscar.js';
 
 const $ = (id) => document.getElementById(id);
 const src = (foto) => {
@@ -77,18 +79,79 @@ function renderMeta(todas) {
   $('meta-decks').hidden = false;
 }
 
+const CLASE_TARJETA_BASE = 'carta-fecha shrink-0 snap-center rounded-2xl border px-4 py-2.5 text-center';
+const CLASE_NO_SELECCIONADA = 'border-borde bg-tinta/70 shadow-card';
+const CLASE_SELECCIONADA = 'border-primario/60 bg-primario/10 shadow-glow-azul';
+
+function tarjetaFecha(nombreTorneo) {
+  const { corta, anio } = extraerFechaCorta(nombreTorneo);
+  return `
+    <button type="button" class="${CLASE_TARJETA_BASE} ${CLASE_NO_SELECCIONADA}" data-torneo="${esc(nombreTorneo)}" aria-current="false" title="${esc(nombreTorneo)}">
+      <span class="block font-display text-lg font-bold italic text-white">${esc(corta)}</span>
+      ${anio ? `<span class="block font-body text-[0.65rem] text-humo">${esc(anio)}</span>` : ''}
+    </button>`;
+}
+
 const todas = await loadResultados();
 const grupos = groupResultados(todas);
 const nombres = Object.keys(grupos);
-const sel = $('selector-torneo');
 
 if (!nombres.length) {
   $('podio').innerHTML = '<p class="text-center font-body text-humo">Todavía no hay resultados cargados.</p>';
 } else {
-  sel.innerHTML = nombres.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
-  sel.value = nombres.at(-1);
-  render(grupos[sel.value]);
-  sel.addEventListener('change', () => render(grupos[sel.value]));
+  const carrusel = $('carrusel-fechas');
+  // Más reciente primero (a la izquierda): es la fecha que el jugador quiere
+  // ver sin tener que scrollear. `nombres` viene viejo→nuevo del CSV.
+  const recienteAViejo = nombres.slice().reverse();
+  carrusel.innerHTML = recienteAViejo.map(tarjetaFecha).join('');
+
+  let actual = nombres.at(-1); // la más reciente, igual que el comportamiento anterior
+
+  function marcarSeleccion(nombreTorneo) {
+    carrusel.querySelectorAll('.carta-fecha').forEach((c) => {
+      const seleccionada = c.dataset.torneo === nombreTorneo;
+      c.setAttribute('aria-current', seleccionada ? 'true' : 'false');
+      c.className = `${CLASE_TARJETA_BASE} ${seleccionada ? CLASE_SELECCIONADA : CLASE_NO_SELECCIONADA}`;
+    });
+  }
+
+  function seleccionar(nombreTorneo) {
+    actual = nombreTorneo;
+    render(grupos[nombreTorneo]);
+    marcarSeleccion(nombreTorneo);
+  }
+
+  seleccionar(actual);
+
+  // Delegado: las tarjetas nunca se re-renderizan tras el build inicial (así
+  // el buscador solo oculta/muestra sin resetear el scroll horizontal).
+  carrusel.addEventListener('click', (e) => {
+    const btn = e.target.closest('.carta-fecha');
+    if (btn) seleccionar(btn.dataset.torneo);
+  });
+
+  $('carrusel-izq').addEventListener('click', () => carrusel.scrollBy({ left: -220, behavior: 'smooth' }));
+  $('carrusel-der').addEventListener('click', () => carrusel.scrollBy({ left: 220, behavior: 'smooth' }));
+
+  $('buscar-fecha').addEventListener('input', (e) => {
+    const consulta = e.target.value;
+    let algunaVisible = false;
+    let seleccionVisible = false;
+    carrusel.querySelectorAll('.carta-fecha').forEach((c) => {
+      const visible = coincideTexto(c.dataset.torneo, consulta);
+      c.hidden = !visible;
+      if (visible) {
+        algunaVisible = true;
+        if (c.dataset.torneo === actual) seleccionVisible = true;
+      }
+    });
+    $('sin-fechas').classList.toggle('hidden', algunaVisible);
+    if (algunaVisible && !seleccionVisible) {
+      const primeraVisible = carrusel.querySelector('.carta-fecha:not([hidden])');
+      if (primeraVisible) seleccionar(primeraVisible.dataset.torneo);
+    }
+  });
+
   renderMeta(todas);
 }
 
