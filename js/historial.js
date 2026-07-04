@@ -18,7 +18,10 @@ export function historialDe(nombre, grupos) {
   return out;
 }
 
-// Resumen del historial: fechas jugadas con top, campeonatos, podios y mejor puesto.
+// Resumen del historial: fechas jugadas con top, campeonatos, podios, mejor
+// puesto y promedio. El promedio es solo entre las fechas en las que el
+// jugador hizo top (Resultados no registra puesto de quien no llegó a top),
+// no un promedio sobre todos los torneos a los que asistió.
 export function estadisticasDe(historial) {
   const puestos = historial.map((h) => Number(h.puesto)).filter((n) => n > 0);
   return {
@@ -26,5 +29,6 @@ export function estadisticasDe(historial) {
     campeonatos: puestos.filter((p) => p === 1).length,
     podios: puestos.filter((p) => p <= 3).length,
     mejorPuesto: puestos.length ? Math.min(...puestos) : null,
+    promedioPuesto: puestos.length ? puestos.reduce((a, b) => a + b, 0) / puestos.length : null,
   };
 }

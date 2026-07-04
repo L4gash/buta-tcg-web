@@ -77,11 +77,13 @@ if (!nombre) {
           <p class="mt-3 font-body leading-[1.7] text-humo">Cuando juegue una fecha de la liga, su historial va a aparecer acá. Mirá el <a href="ranking.html" class="text-primario-glow underline hover:opacity-80">ranking completo</a>.</p>
         </div>`;
     } else {
+      const promedioTexto = stats.promedioPuesto == null ? '—' : stats.promedioPuesto.toFixed(1);
       const chips = [
         filaRanking ? chip(`#${esc(filaRanking.Pos)}`, 'Ranking') : '',
         filaRanking ? chip(esc(filaRanking['PL Totales'] ?? '0'), 'Puntos de liga') : '',
         chip(stats.campeonatos, stats.campeonatos === 1 ? 'Campeonato' : 'Campeonatos'),
         chip(stats.podios, 'Podios'),
+        chip(promedioTexto, 'Promedio de puesto'),
       ].filter(Boolean).join('');
 
       $('perfil-jugador').innerHTML = `
@@ -90,7 +92,7 @@ if (!nombre) {
           <h1 class="texto-neon mt-3 font-display text-3xl font-bold italic text-white sm:text-5xl" style="letter-spacing:-0.03em;">${esc(nombreMostrar)}</h1>
           <button type="button" id="btn-compartir" class="mt-5 rounded-full border border-primario/50 px-5 py-2 font-body text-sm font-semibold text-primario-glow hover:bg-primario/10">Compartir perfil</button>
         </div>
-        <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">${chips}</div>
+        <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">${chips}</div>
         <section aria-label="Historial de tops" class="mt-8">
           <h2 class="font-display text-xl font-bold italic text-white" style="letter-spacing:-0.03em;">Tops en la liga</h2>
           ${historial.length
