@@ -1,4 +1,5 @@
 import { loadResultados, groupResultados, esc, tieneFoto, deckVisible } from './data.js';
+import { contarDecks } from './meta-decks.js';
 
 const $ = (id) => document.getElementById(id);
 const src = (foto) => {
@@ -60,7 +61,24 @@ function render(resultados) {
     : '';
 }
 
-const grupos = groupResultados(await loadResultados());
+// Barras del meta: una sola serie (cantidad de tops por deck), un solo tono de
+// marca — la magnitud la lleva el largo de la barra, no el color. Cada valor va
+// etiquetado directo (nombre a la izquierda, cantidad y % a la derecha).
+function renderMeta(todas) {
+  const decks = contarDecks(todas);
+  if (!decks.length) return; // sin datos de deck: la sección queda oculta
+  const maxPct = decks[0].pct || 1;
+  $('meta-barras').innerHTML = decks.map((d) => `
+    <div class="flex items-center gap-3 py-1.5" title="${esc(d.deck)}: ${d.cantidad} ${d.cantidad === 1 ? 'top' : 'tops'} (${d.pct}%)">
+      <span class="w-28 shrink-0 truncate text-right font-body text-sm ${d.deck === 'Otros' ? 'text-humo' : 'text-white'} sm:w-44">${esc(d.deck)}</span>
+      <span class="min-w-0 flex-1"><span class="block h-2.5 min-w-[4px] rounded-full ${d.deck === 'Otros' ? 'bg-primario/30' : 'bg-primario'}" style="width:${Math.max(2, Math.round((d.pct / maxPct) * 100))}%"></span></span>
+      <span class="w-16 shrink-0 text-right font-body text-sm tabular-nums text-humo"><strong class="font-semibold text-white">${d.cantidad}</strong> · ${d.pct}%</span>
+    </div>`).join('');
+  $('meta-decks').hidden = false;
+}
+
+const todas = await loadResultados();
+const grupos = groupResultados(todas);
 const nombres = Object.keys(grupos);
 const sel = $('selector-torneo');
 
@@ -71,6 +89,7 @@ if (!nombres.length) {
   sel.value = nombres.at(-1);
   render(grupos[sel.value]);
   sel.addEventListener('change', () => render(grupos[sel.value]));
+  renderMeta(todas);
 }
 
 let ultimaTarjeta = null;
