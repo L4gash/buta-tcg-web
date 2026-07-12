@@ -14,6 +14,7 @@ export const FALLBACK_TORNEOS = [{
   cupo_maximo: '32',
   estado: 'finalizado',
   alias: '',
+  decklist_habilitado: '',
 }];
 
 const foto = (f) => `assets/results/${f}`;
@@ -39,6 +40,12 @@ export function pickProximos(torneos) {
 // Alias de compatibilidad: módulos v1 cacheados por el navegador durante la ventana
 // del deploy todavía importan pickProximo (singular). No usar en código nuevo.
 export const pickProximo = (torneos) => pickProximos(torneos)[0] ?? null;
+
+// Torneos con la carga de decklist habilitada por el organizador (columna
+// decklist_habilitado = "si"/"sí" en la planilla, cualquier capitalización).
+export function pickHabilitadosDecklist(torneos) {
+  return torneos.filter((t) => /^s[ií]$/i.test((t.decklist_habilitado ?? '').trim()));
+}
 
 // El orden de los grupos sigue el orden de las filas del CSV: cargar los torneos de más viejo a más nuevo.
 export function groupResultados(rows) {

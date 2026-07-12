@@ -89,6 +89,28 @@ Permite que el jugador adjunte una foto del comprobante al inscribirse; se guard
 5. El adjunto es **opcional**: quien no suba foto se inscribe igual, y la columna `comprobante`
    de esa fila queda vacía. Si alguien la sube, ahí aparece el link al archivo.
 
+## Actualización v5 (carga de decklist para torneos importantes)
+
+Permite habilitar, torneo por torneo, que los inscriptos suban su decklist (imagen o PDF)
+a una carpeta de Drive dedicada. Pensado para fechas importantes (ej: el YACS).
+
+1. En la pestaña `Torneos`, escribí `decklist_habilitado` en la celda L1 (a la derecha de `alias`).
+   Para el/los torneos donde quieras pedir decklist, poné `si` en esa columna. Vacío o `no` = deshabilitado.
+2. Creá una pestaña nueva llamada EXACTO `Decklists` e importá
+   `docs/sheets-template/decklists.csv` (deja solo la fila de encabezado; el script agrega filas solo).
+3. Repegá TODO el `apps-script/Code.gs` actualizado en Extensiones → Apps Script y guardá.
+4. ⚠️ Implementar → Gestionar implementaciones → ✏️ Editar → Versión: **Nueva versión** → Implementar.
+5. La carpeta de Drive ya está fija en el código (`BUTA TCG - Decklist`, la misma que compartiste) —
+   no hace falta autorizar Drive de nuevo si ya lo hiciste para el comprobante de pago (mismo permiso).
+   Si nunca lo hiciste: repetí el paso de `autorizarDrive` de la sección de comprobante, arriba.
+6. Adentro de esa carpeta, el script crea sola una subcarpeta por torneo (con el nombre EXACTO
+   del torneo) la primera vez que alguien sube una decklist para esa fecha.
+7. **Solo puede subir decklist quien ya esté inscripto** a ese torneo con el mismo Konami ID
+   (se valida contra `Inscripciones`). Si vuelve a subir, se reemplaza el envío anterior en
+   `Decklists` — no se acumulan filas duplicadas.
+8. La web solo muestra la sección "Decklist" en `torneos.html` cuando hay al menos un torneo
+   habilitado; si no, queda oculta sola.
+
 ## Cargar resultados de un torneo (v4)
 
 1. En la pestaña `Resultados`, agregá una fila por cada jugador del top con: `torneo`

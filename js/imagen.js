@@ -28,7 +28,9 @@ export async function comprimirImagen(file, { maxLado = MAX_LADO, calidad = CALI
   return { b64, mime: 'image/jpeg' };
 }
 
-function blobABase64(blob) {
+// Genérico (no solo imágenes): lo usa también la decklist en PDF, que se sube
+// tal cual sin pasar por el canvas de compresión.
+export function blobABase64(blob) {
   return new Promise((res, rej) => {
     const reader = new FileReader();
     reader.onload = () => res(String(reader.result).split(',')[1]); // descarta el prefijo data:...,

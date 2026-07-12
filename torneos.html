@@ -100,11 +100,53 @@
       </div>
     </section>
 
+    <!-- DECKLIST (poblado por JS; oculta si no hay torneos habilitados) -->
+    <section id="seccion-decklist" class="py-8" hidden>
+      <div class="mx-auto max-w-3xl rounded-2xl border border-violeta/40 bg-tinta/70 p-6 shadow-glow-violeta sm:p-8">
+        <h2 class="font-display text-2xl font-bold italic text-white" style="letter-spacing:-0.03em;">Decklist</h2>
+        <p class="mt-2 font-body text-sm leading-[1.7] text-humo">Para los torneos importantes pedimos cargar tu decklist antes de jugar. Necesitás estar ya inscripto con el mismo Konami ID.</p>
+        <form id="form-decklist" class="mt-6 flex flex-col gap-5" novalidate>
+          <div>
+            <label for="decklist-torneo-select" class="font-body text-sm font-semibold text-humo">Torneo</label>
+            <select id="decklist-torneo-select" name="torneo" required
+              class="mt-1.5 w-full rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white focus:border-primario"></select>
+          </div>
+          <div>
+            <label for="decklist-nombre" class="font-body text-sm font-semibold text-humo">Nombre completo</label>
+            <input id="decklist-nombre" name="nombre" type="text" autocomplete="name" required aria-describedby="error-decklist-nombre" aria-invalid="false"
+              class="mt-1.5 w-full rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/80 focus:border-primario"
+              placeholder="Ej: Yugi Muto" />
+            <p id="error-decklist-nombre" data-error-for="decklist-nombre" role="alert" class="mt-1.5 hidden font-body text-sm text-red-400">Ingresá tu nombre completo (mínimo 3 letras).</p>
+          </div>
+          <div>
+            <label for="decklist-konami-id" class="font-body text-sm font-semibold text-humo">Konami ID (10 dígitos)</label>
+            <input id="decklist-konami-id" name="konami_id" type="text" inputmode="numeric" maxlength="10" required aria-describedby="error-decklist-konami-id" aria-invalid="false"
+              class="mt-1.5 w-full rounded-lg border border-borde bg-noche px-4 py-3 font-body text-white placeholder-humo/80 focus:border-primario"
+              placeholder="Ej: 0123456789" />
+            <p id="error-decklist-konami-id" data-error-for="decklist-konami-id" role="alert" class="mt-1.5 hidden font-body text-sm text-red-400">El mismo Konami ID con el que te inscribiste a ese torneo.</p>
+          </div>
+          <div>
+            <label for="decklist-archivo" class="font-body text-sm font-semibold text-humo">Decklist (imagen o PDF)</label>
+            <input id="decklist-archivo" name="archivo" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required
+              aria-describedby="decklist-archivo-error" aria-invalid="false"
+              class="mt-1.5 block w-full cursor-pointer rounded-lg border border-borde bg-noche px-4 py-3 font-body text-sm text-humo file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-violeta file:px-4 file:py-1.5 file:font-display file:text-xs file:font-semibold file:text-white hover:file:opacity-90 focus:border-primario" />
+            <p id="decklist-archivo-error" data-error-for="decklist-archivo" role="alert" class="mt-1.5 hidden font-body text-sm text-red-400"></p>
+          </div>
+          <button type="submit" id="btn-subir-decklist"
+            class="rounded-full bg-gradient-to-r from-violeta to-primario px-8 py-3.5 font-display font-bold italic text-white shadow-glow-violeta hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
+            Subir decklist
+          </button>
+          <p id="mensaje-decklist" role="status" aria-live="polite" class="hidden rounded-lg px-4 py-3 font-body text-sm"></p>
+        </form>
+      </div>
+    </section>
+
   </main>
 
   <footer id="site-footer" class="mt-20 border-t border-borde/60 py-10"></footer>
 
   <script type="module" src="js/inscripcion.js"></script>
+  <script type="module" src="js/decklist.js"></script>
 
 </body>
 </html>

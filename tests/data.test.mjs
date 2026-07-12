@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { pickProximos, groupResultados, FALLBACK_TORNEOS, FALLBACK_RESULTADOS, esc, tieneFoto, deckVisible, filtrarRanking, FALLBACK_RANKING } from '../js/data.js';
+import { pickProximos, pickHabilitadosDecklist, groupResultados, FALLBACK_TORNEOS, FALLBACK_RESULTADOS, esc, tieneFoto, deckVisible, filtrarRanking, FALLBACK_RANKING } from '../js/data.js';
 
 test('groupResultados groups by torneo and sorts by puesto numerically', () => {
   const rows = [
@@ -39,6 +39,24 @@ test('pickProximos returns all torneos with estado proximo, in sheet order', () 
 
 test('fallback torneo has alias field', () => {
   assert.equal('alias' in FALLBACK_TORNEOS[0], true);
+});
+
+test('pickHabilitadosDecklist: solo torneos con decklist_habilitado en "sí"', () => {
+  const t = [
+    { nombre: 'A', decklist_habilitado: 'si' },
+    { nombre: 'B', decklist_habilitado: 'no' },
+    { nombre: 'C', decklist_habilitado: 'SÍ' },
+    { nombre: 'D', decklist_habilitado: '' },
+    { nombre: 'E' },
+    { nombre: 'F', decklist_habilitado: ' Si ' },
+  ];
+  assert.deepEqual(pickHabilitadosDecklist(t).map((x) => x.nombre), ['A', 'C', 'F']);
+  assert.deepEqual(pickHabilitadosDecklist([]), []);
+});
+
+test('fallback torneo tiene el campo decklist_habilitado (vacío por defecto)', () => {
+  assert.equal('decklist_habilitado' in FALLBACK_TORNEOS[0], true);
+  assert.deepEqual(pickHabilitadosDecklist(FALLBACK_TORNEOS), []);
 });
 
 test('tieneFoto: true solo con valor no vacío tras trim', () => {
