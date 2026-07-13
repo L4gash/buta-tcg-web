@@ -1,6 +1,8 @@
 // Historial de un jugador a partir de los resultados agrupados por torneo.
 // Funciones puras (sin DOM ni fetch): las usa jugador.html y las testean en Node.
 import { coincideJugador } from './buscar.js';
+import { groupResultados, deckVisible } from './data.js';
+import { listaTemporadas, filasDeTemporada } from './temporadas.js';
 
 // '?nombre=Juan%20Perez' -> 'Juan Perez'. Sin parámetro => ''.
 export function nombreDesdeParams(search) {
@@ -16,6 +18,30 @@ export function historialDe(nombre, grupos) {
     if (fila) out.push({ torneo: fila.torneo, puesto: fila.puesto, deck: fila.deck });
   }
   return out;
+}
+
+// Historial segmentado por temporada: [{ temporada, items }] en el orden de
+// las temporadas (vieja → nueva), incluyendo solo aquellas donde el jugador
+// tiene al menos un top. Recibe las filas CRUDAS de resultados (no agrupadas).
+export function historialPorTemporada(nombre, rows) {
+  return listaTemporadas(rows)
+    .map((temporada) => ({
+      temporada,
+      items: historialDe(nombre, groupResultados(filasDeTemporada(rows, temporada))),
+    }))
+    .filter((s) => s.items.length > 0);
+}
+
+// El deck con más tops del historial, o null si ninguna fila tiene deck cargado.
+export function deckFavorito(historial) {
+  const conteo = new Map();
+  for (const h of historial ?? []) {
+    if (!deckVisible(h.deck)) continue;
+    const deck = String(h.deck).trim();
+    conteo.set(deck, (conteo.get(deck) ?? 0) + 1);
+  }
+  const top = [...conteo.entries()].sort((a, b) => b[1] - a[1])[0];
+  return top ? { deck: top[0], veces: top[1] } : null;
 }
 
 // Resumen del historial: fechas jugadas con top, campeonatos, podios, mejor

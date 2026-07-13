@@ -38,6 +38,8 @@
     <section class="pb-4 pt-12 text-center">
       <p class="font-display text-xs font-semibold uppercase tracking-[0.3em] text-violeta-glow">Salón de la fama</p>
       <h1 class="texto-neon mt-3 font-display text-3xl font-bold italic text-white sm:text-5xl" style="letter-spacing:-0.03em;">Resultados de torneos</h1>
+      <!-- Selector de temporada (visible solo cuando hay más de una) -->
+      <div id="selector-temporadas" class="mt-6 flex flex-wrap justify-center gap-2" hidden></div>
       <div class="mx-auto mt-8 max-w-xs">
         <label for="buscar-fecha" class="sr-only">Buscar torneo por fecha o nombre</label>
         <input id="buscar-fecha" type="search" placeholder="🔍 Buscá una fecha o torneo…" autocomplete="off"
@@ -56,10 +58,16 @@
     <section id="podio" class="py-8"><div class="skeleton h-72 w-full"></div></section>
     <section id="grilla-top" class="py-4"></section>
 
-    <!-- META DE DECKS (poblado por JS con todos los resultados de la temporada) -->
+    <!-- NÚMEROS DE LA TEMPORADA (poblado por JS según la temporada elegida) -->
+    <section id="resumen-temporada" aria-labelledby="resumen-titulo" class="py-10" hidden>
+      <h2 id="resumen-titulo" class="font-display text-2xl font-bold italic text-white" style="letter-spacing:-0.03em;">Los números de la temporada</h2>
+      <div id="resumen-chips" class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4"></div>
+    </section>
+
+    <!-- META DE DECKS (poblado por JS según la temporada elegida) -->
     <section id="meta-decks" aria-labelledby="meta-titulo" class="py-10" hidden>
       <h2 id="meta-titulo" class="font-display text-2xl font-bold italic text-white" style="letter-spacing:-0.03em;">El meta de Córdoba</h2>
-      <p class="mt-2 font-body text-sm leading-[1.7] text-humo">Decks en los tops de todas las fechas de la temporada.</p>
+      <p id="meta-subtitulo" class="mt-2 font-body text-sm leading-[1.7] text-humo">Decks en los tops de todas las fechas de la temporada.</p>
       <div id="meta-barras" class="mt-5"></div>
     </section>
 

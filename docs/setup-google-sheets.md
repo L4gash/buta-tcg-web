@@ -111,6 +111,24 @@ a una carpeta de Drive dedicada. Pensado para fechas importantes (ej: el YACS).
 8. La web solo muestra la sección "Decklist" en `torneos.html` cuando hay al menos un torneo
    habilitado; si no, queda oculta sola.
 
+## Actualización v6 (temporadas de la liga)
+
+Permite archivar los resultados por temporada: la web muestra por defecto la temporada
+en curso, y las anteriores quedan accesibles con un selector (sin perder nada).
+
+1. En la pestaña `Resultados`, escribí `temporada` en la celda F1 (a la derecha de `foto`).
+2. Las filas viejas se pueden dejar VACÍAS: la web las agrupa sola como "Temporada 1".
+3. Cuando arranque la temporada siguiente, cargá las filas nuevas con `Temporada 2` en esa
+   columna (y así sucesivamente). Con que la columna tenga el mismo texto EXACTO en todas
+   las filas de esa temporada alcanza — la web arma el selector sola.
+4. No hay que tocar el Apps Script ni redeployar nada: los resultados se leen por CSV.
+5. El perfil de cada jugador conserva TODO su historial, agrupado por temporada.
+   El gráfico "El meta de Córdoba" y el panel "Los números de la temporada" muestran
+   la temporada seleccionada.
+
+Ojo: el ranking de liga (la otra planilla) es de la temporada en curso — al cerrar una
+temporada, sacale una copia si querés conservar la tabla final antes de resetear los puntos.
+
 ## Cargar resultados de un torneo (v4)
 
 1. En la pestaña `Resultados`, agregá una fila por cada jugador del top con: `torneo`

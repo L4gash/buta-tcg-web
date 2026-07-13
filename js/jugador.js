@@ -2,7 +2,7 @@
 // Se llega con jugador.html?nombre=... (desde el ranking) o, sin parámetro,
 // con el perfil guardado tras una inscripción.
 import { loadResultados, loadRanking, groupResultados, filtrarRanking, esc } from './data.js';
-import { nombreDesdeParams, historialDe, estadisticasDe } from './historial.js';
+import { nombreDesdeParams, historialDe, estadisticasDe, historialPorTemporada, deckFavorito } from './historial.js';
 import { coincideJugador } from './buscar.js';
 import { leerPerfilGuardado } from './perfil.js';
 
@@ -38,9 +38,15 @@ function filaFecha(h) {
     </div>`;
 }
 
-async function compartir(nombre) {
+async function compartir(nombre, stats) {
   const url = location.href;
-  const texto = `Mirá el historial de ${nombre} en la liga de BUTA TCG`;
+  const logros = [
+    stats.campeonatos ? `${stats.campeonatos} ${stats.campeonatos === 1 ? 'campeonato' : 'campeonatos'}` : '',
+    stats.podios ? `${stats.podios} podios` : '',
+  ].filter(Boolean).join(' · ');
+  const texto = logros
+    ? `${nombre} en la liga de BUTA TCG 🐗 ${logros}`
+    : `Mirá el historial de ${nombre} en la liga de BUTA TCG`;
   try {
     if (navigator.share) await navigator.share({ title: texto, url });
     else {
@@ -64,6 +70,8 @@ if (!nombre) {
   try {
     const [resultados, rankingRows] = await Promise.all([loadResultados(), loadRanking()]);
     const historial = historialDe(nombre, groupResultados(resultados));
+    const segmentos = historialPorTemporada(nombre, resultados);
+    const favorito = deckFavorito(historial);
     const stats = estadisticasDe(historial);
     const ranking = filtrarRanking(rankingRows);
     const filaRanking = ranking.find((r) => coincideJugador(r.Jugador, nombre));
@@ -93,13 +101,16 @@ if (!nombre) {
           <button type="button" id="btn-compartir" class="mt-5 rounded-full border border-primario/50 px-5 py-2 font-body text-sm font-semibold text-primario-glow hover:bg-primario/10">Compartir perfil</button>
         </div>
         <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">${chips}</div>
+        ${favorito ? `<p class="mt-4 rounded-xl border border-borde bg-noche/60 px-4 py-2.5 text-center font-body text-sm text-humo">🃏 Deck más jugado: <strong class="text-white">${esc(favorito.deck)}</strong> · ${favorito.veces} ${favorito.veces === 1 ? 'top' : 'tops'}</p>` : ''}
         <section aria-label="Historial de tops" class="mt-8">
           <h2 class="font-display text-xl font-bold italic text-white" style="letter-spacing:-0.03em;">Tops en la liga</h2>
-          ${historial.length
-            ? `<div class="mt-4 overflow-hidden rounded-2xl border border-borde bg-tinta/70 shadow-card">${[...historial].reverse().map(filaFecha).join('')}</div>`
+          ${segmentos.length
+            ? segmentos.slice().reverse().map((s) => `
+              ${segmentos.length > 1 ? `<h3 class="mt-5 font-body text-xs font-semibold uppercase tracking-[0.25em] text-violeta-glow">${esc(s.temporada)}</h3>` : ''}
+              <div class="mt-3 overflow-hidden rounded-2xl border border-borde bg-tinta/70 shadow-card">${[...s.items].reverse().map(filaFecha).join('')}</div>`).join('')
             : '<p class="mt-4 font-body text-humo">Todavía sin tops registrados — los puntos de liga también suman jugando.</p>'}
         </section>`;
-      $('btn-compartir').addEventListener('click', () => compartir(nombreMostrar));
+      $('btn-compartir').addEventListener('click', () => compartir(nombreMostrar, stats));
     }
   } catch {
     $('perfil-jugador').innerHTML = '<p class="text-center font-body text-humo">No se pudieron cargar los datos. Probá de nuevo en unos segundos.</p>';

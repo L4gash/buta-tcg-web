@@ -2,6 +2,7 @@ import { loadResultados, groupResultados, esc, tieneFoto, deckVisible } from './
 import { contarDecks } from './meta-decks.js';
 import { extraerFechaCorta } from './fecha-torneo.js';
 import { coincideTexto } from './buscar.js';
+import { listaTemporadas, filasDeTemporada, resumenTemporada } from './temporadas.js';
 
 const $ = (id) => document.getElementById(id);
 const src = (foto) => {
@@ -66,8 +67,9 @@ function render(resultados) {
 // Barras del meta: una sola serie (cantidad de tops por deck), un solo tono de
 // marca — la magnitud la lleva el largo de la barra, no el color. Cada valor va
 // etiquetado directo (nombre a la izquierda, cantidad y % a la derecha).
-function renderMeta(todas) {
-  const decks = contarDecks(todas);
+function renderMeta(filas) {
+  $('meta-decks').hidden = true; // se re-evalúa en cada cambio de temporada
+  const decks = contarDecks(filas);
   if (!decks.length) return; // sin datos de deck: la sección queda oculta
   const maxPct = decks[0].pct || 1;
   $('meta-barras').innerHTML = decks.map((d) => `
@@ -92,20 +94,37 @@ function tarjetaFecha(nombreTorneo) {
     </button>`;
 }
 
-const todas = await loadResultados();
-const grupos = groupResultados(todas);
-const nombres = Object.keys(grupos);
+// Chip de resumen ("Los números de la temporada"). Los valores de texto
+// (nombres, decks) van más chicos que los numéricos para no desbordar.
+function chipResumen(valor, etiqueta, chico = false) {
+  return `
+    <div class="rounded-2xl border border-borde bg-tinta/70 px-4 py-3 text-center shadow-card">
+      <p class="${chico ? 'truncate font-display text-base font-bold italic' : 'font-display text-2xl font-bold'} text-primario-glow">${valor}</p>
+      <p class="mt-1 font-body text-xs uppercase tracking-widest text-humo">${etiqueta}</p>
+    </div>`;
+}
 
-if (!nombres.length) {
+function renderResumen(filas) {
+  const r = resumenTemporada(filas);
+  if (!r.fechas) { $('resumen-temporada').hidden = true; return; }
+  $('resumen-chips').innerHTML = [
+    chipResumen(r.fechas, r.fechas === 1 ? 'Fecha jugada' : 'Fechas jugadas'),
+    chipResumen(r.jugadores, 'Jugadores en tops'),
+    r.masCampeonatos ? chipResumen(`${esc(r.masCampeonatos.nombre)} ×${r.masCampeonatos.cantidad}`, 'Más campeonatos', true) : '',
+    r.deckDominante ? chipResumen(`${esc(r.deckDominante.deck)} ×${r.deckDominante.cantidad}`, 'Deck dominante', true) : '',
+  ].filter(Boolean).join('');
+  $('resumen-temporada').hidden = false;
+}
+
+const todas = await loadResultados();
+const temporadas = listaTemporadas(todas);
+
+if (!temporadas.length) {
   $('podio').innerHTML = '<p class="text-center font-body text-humo">Todavía no hay resultados cargados.</p>';
 } else {
   const carrusel = $('carrusel-fechas');
-  // Más reciente primero (a la izquierda): es la fecha que el jugador quiere
-  // ver sin tener que scrollear. `nombres` viene viejo→nuevo del CSV.
-  const recienteAViejo = nombres.slice().reverse();
-  carrusel.innerHTML = recienteAViejo.map(tarjetaFecha).join('');
-
-  let actual = nombres.at(-1); // la más reciente, igual que el comportamiento anterior
+  let grupos = {};
+  let actual = null;
 
   function marcarSeleccion(nombreTorneo) {
     carrusel.querySelectorAll('.carta-fecha').forEach((c) => {
@@ -121,10 +140,46 @@ if (!nombres.length) {
     marcarSeleccion(nombreTorneo);
   }
 
-  seleccionar(actual);
+  // Cambia toda la vista a una temporada: carrusel, podio, resumen y meta.
+  function verTemporada(temporada) {
+    const filas = filasDeTemporada(todas, temporada);
+    grupos = groupResultados(filas);
+    const nombres = Object.keys(grupos);
+    // Más reciente primero (a la izquierda): es la fecha que el jugador quiere
+    // ver sin tener que scrollear. `nombres` viene viejo→nuevo del CSV.
+    carrusel.innerHTML = nombres.slice().reverse().map(tarjetaFecha).join('');
+    carrusel.scrollLeft = 0;
+    $('buscar-fecha').value = '';
+    $('sin-fechas').classList.add('hidden');
+    seleccionar(nombres.at(-1));
+    renderMeta(filas);
+    if ($('meta-subtitulo') && temporadas.length > 1) {
+      $('meta-subtitulo').textContent = `Decks en los tops de las fechas de ${temporada}.`;
+    }
+    renderResumen(filas);
+    document.querySelectorAll('.chip-temporada').forEach((c) => {
+      const sel = c.dataset.temporada === temporada;
+      c.setAttribute('aria-pressed', sel ? 'true' : 'false');
+      c.className = `chip-temporada rounded-full border px-4 py-2 font-body text-sm font-semibold ${sel
+        ? 'border-primario/60 bg-primario/10 text-white'
+        : 'border-borde text-humo hover:border-primario hover:text-white'}`;
+    });
+  }
 
-  // Delegado: las tarjetas nunca se re-renderizan tras el build inicial (así
-  // el buscador solo oculta/muestra sin resetear el scroll horizontal).
+  // Selector de temporadas (solo si hay más de una): la actual primera.
+  if (temporadas.length > 1) {
+    const selector = $('selector-temporadas');
+    selector.innerHTML = temporadas.slice().reverse().map((t) => `
+      <button type="button" class="chip-temporada rounded-full border border-borde px-4 py-2 font-body text-sm font-semibold text-humo" data-temporada="${esc(t)}" aria-pressed="false">${esc(t)}</button>`).join('');
+    selector.hidden = false;
+    selector.addEventListener('click', (e) => {
+      const btn = e.target.closest('.chip-temporada');
+      if (btn) verTemporada(btn.dataset.temporada);
+    });
+  }
+
+  // Delegado: las tarjetas no se re-renderizan al buscar (así el buscador
+  // solo oculta/muestra sin resetear el scroll horizontal).
   carrusel.addEventListener('click', (e) => {
     const btn = e.target.closest('.carta-fecha');
     if (btn) seleccionar(btn.dataset.torneo);
@@ -152,7 +207,7 @@ if (!nombres.length) {
     }
   });
 
-  renderMeta(todas);
+  verTemporada(temporadas.at(-1)); // arranca en la temporada actual (la última del CSV)
 }
 
 let ultimaTarjeta = null;
