@@ -24,16 +24,26 @@ test('paginaActiva: la raíz y rutas desconocidas mapean a index.html', () => {
   assert.equal(paginaActiva('/algo-raro.html'), 'index.html');
 });
 
-test('navHtml: marca la página activa con aria-current', () => {
+test('navHtml: marca la página activa con aria-current (en el nav de escritorio y en el de celular)', () => {
   const html = navHtml('ranking.html');
   assert.match(html, /href="ranking\.html"[^>]*aria-current="page"/);
-  // Las demás no llevan aria-current
-  assert.equal(html.match(/aria-current/g).length, 1);
+  // Ranking aparece 2 veces (nav de escritorio + menú de celular); ninguna otra página lo lleva.
+  assert.equal(html.match(/aria-current/g).length, 2);
 });
 
-test('navHtml: contiene los 6 links de página', () => {
+test('navHtml: contiene los 6 links de página, duplicados entre escritorio y celular', () => {
+  const html = navHtml('torneos.html'); // activa distinta de index.html: el logo no se cuenta doble
+  for (const p of PAGINAS) {
+    const esperadas = p.archivo === 'index.html' ? 3 : 2; // index.html: + 1 por el link del logo
+    const apariciones = html.split(`href="${p.archivo}"`).length - 1;
+    assert.equal(apariciones, esperadas, `${p.archivo} apareció ${apariciones} veces, se esperaban ${esperadas}`);
+  }
+});
+
+test('navHtml: menú de celular — botón hamburguesa y panel colapsado por defecto', () => {
   const html = navHtml('index.html');
-  for (const p of PAGINAS) assert.ok(html.includes(`href="${p.archivo}"`), `falta link a ${p.archivo}`);
+  assert.match(html, /id="btn-menu-movil"[^>]*aria-expanded="false"[^>]*aria-controls="menu-movil"/);
+  assert.match(html, /id="menu-movil"[^>]*class="[^"]*\bhidden\b/);
 });
 
 test('navHtml: link externo "Pedidos" apunta al sitio de pedidos y abre en pestaña nueva', () => {

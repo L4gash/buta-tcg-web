@@ -46,24 +46,53 @@ export function flechaVolverHtml(archivo) {
   return `<a href="${href}" class="inline-flex items-center gap-1.5 font-body text-sm text-humo hover:text-primario-glow">← ${etiqueta}</a>`;
 }
 
-// En celular el logo ocupa la primera fila y los links pasan a una segunda fila
-// a lo ancho (w-full + flex-wrap en el nav). En sm+ vuelve a ser una sola fila.
+// Las 7 entradas del nav (6 páginas + Pedidos) en orden final, marcando cuál
+// está activa. Pedidos va justo después de Jugadores y nunca es "activa"
+// (no es una página del sitio: la administra Mariano, fuera de este repo).
+function itemsNav(activa) {
+  return PAGINAS.flatMap(({ archivo, etiqueta }) => {
+    const item = { href: archivo, etiqueta, esActiva: archivo === activa, externo: false };
+    return archivo === 'jugadores.html'
+      ? [item, { href: ENLACE_PEDIDOS.href, etiqueta: ENLACE_PEDIDOS.etiqueta, esActiva: false, externo: true }]
+      : [item];
+  });
+}
+
+function linkHtml({ href, etiqueta, esActiva, externo }, clase) {
+  const atributos = externo ? ' target="_blank" rel="noopener noreferrer"' : (esActiva ? ' aria-current="page"' : '');
+  return `<a href="${href}"${atributos} class="${clase(esActiva)}">${etiqueta}</a>`;
+}
+
+// Nav de escritorio (fila horizontal, sm+) y menú de celular (botón
+// hamburguesa + panel desplegable a pantalla completa, debajo de sm). Con 7
+// entradas ya no entran en una fila en celular sin desbordar ni achicar los
+// botones por debajo del tamaño táctil mínimo — de ahí el menú aparte.
 export function navHtml(activa) {
-  const enlacePedidosHtml = `<a href="${ENLACE_PEDIDOS.href}" target="_blank" rel="noopener noreferrer" class="rounded-md px-2 py-2.5 text-humo hover:text-primario-glow sm:px-3">${ENLACE_PEDIDOS.etiqueta}</a>`;
-  const links = PAGINAS.flatMap(({ archivo, etiqueta }) => {
-    const esActiva = archivo === activa;
-    const html = `<a href="${archivo}"${esActiva ? ' aria-current="page"' : ''} class="rounded-md px-2 py-2.5 ${esActiva ? 'text-white' : 'text-humo'} hover:text-primario-glow sm:px-3">${etiqueta}</a>`;
-    // Pedidos lo administra otra persona (Mariano), fuera de este repo; va
-    // justo después de Jugadores en el nav.
-    return archivo === 'jugadores.html' ? [html, enlacePedidosHtml] : [html];
-  }).join('');
+  const items = itemsNav(activa);
+
+  const linksEscritorio = items
+    .map((item) => linkHtml(item, (esActiva) => `rounded-md px-2 py-2.5 ${esActiva ? 'text-white' : 'text-humo'} hover:text-primario-glow sm:px-3`))
+    .join('');
+
+  const linksMovil = items
+    .map((item) => linkHtml(item, (esActiva) => `block border-t border-borde/60 px-4 py-3.5 font-body text-base ${esActiva ? 'text-white' : 'text-humo'} hover:bg-noche/60`))
+    .join('');
+
   return `
-    <nav class="mx-auto flex max-w-6xl flex-wrap items-center justify-between px-4 pt-3 pb-1 sm:py-3" aria-label="Principal">
+    <nav class="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-3" aria-label="Principal">
       <a href="index.html" class="flex shrink-0 items-center gap-2 hover:opacity-80">
         <img src="assets/logo-butatcg.png" alt="Logo BUTA TCG" class="h-9 w-9 object-contain" />
         <span class="whitespace-nowrap font-display text-lg font-bold italic tracking-tight text-white">BUTA <span class="text-primario-glow">TCG</span></span>
       </a>
-      <div class="flex w-full items-center justify-between font-body text-sm sm:w-auto sm:justify-end sm:gap-2">${links}</div>
+
+      <div class="hidden items-center font-body text-sm sm:flex sm:gap-2">${linksEscritorio}</div>
+
+      <button type="button" id="btn-menu-movil" aria-expanded="false" aria-controls="menu-movil" aria-label="Abrir menú"
+        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-2xl leading-none text-white hover:text-primario-glow sm:hidden">
+        <span id="icono-menu-movil" aria-hidden="true">☰</span>
+      </button>
+
+      <div id="menu-movil" class="absolute inset-x-0 top-full hidden flex-col border-b border-borde/60 bg-noche/95 shadow-card backdrop-blur-md sm:hidden" role="menu">${linksMovil}</div>
     </nav>`;
 }
 
@@ -93,6 +122,30 @@ if (typeof document !== 'undefined') {
   if (header) header.innerHTML = navHtml(paginaActiva(location.pathname));
   if (footer) footer.innerHTML = footerHtml();
   if (volver) volver.innerHTML = flechaVolverHtml(archivo);
+
+  // Menú de celular: botón hamburguesa que despliega el panel de links.
+  const btnMenu = document.getElementById('btn-menu-movil');
+  const menuMovil = document.getElementById('menu-movil');
+  if (btnMenu && menuMovil) {
+    const iconoMenu = document.getElementById('icono-menu-movil');
+    const alternarMenu = (abrir) => {
+      btnMenu.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+      btnMenu.setAttribute('aria-label', abrir ? 'Cerrar menú' : 'Abrir menú');
+      if (iconoMenu) iconoMenu.textContent = abrir ? '✕' : '☰';
+      menuMovil.classList.toggle('hidden', !abrir);
+      menuMovil.classList.toggle('flex', abrir);
+    };
+    btnMenu.addEventListener('click', () => alternarMenu(menuMovil.classList.contains('hidden')));
+    menuMovil.addEventListener('click', (e) => { if (e.target.closest('a')) alternarMenu(false); });
+    document.addEventListener('click', (e) => {
+      if (!menuMovil.classList.contains('hidden') && !menuMovil.contains(e.target) && e.target !== btnMenu && !btnMenu.contains(e.target)) {
+        alternarMenu(false);
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !menuMovil.classList.contains('hidden')) alternarMenu(false);
+    });
+  }
 
   // PWA: el service worker da respaldo offline (network-first, ver sw.js).
   // Se registra al terminar la carga para no competir con el arranque.
