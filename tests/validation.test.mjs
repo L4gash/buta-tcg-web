@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validarNombre, validarKonamiId, validarComentario } from '../js/validation.js';
+import { validarNombre, validarKonamiId, validarComentario, validarEmail } from '../js/validation.js';
 
 test('nombre: requires at least 3 chars after trim', () => {
   assert.equal(validarNombre('  Juan Pérez  '), true);
@@ -16,6 +16,17 @@ test('konami id: exactly 10 digits', () => {
   assert.equal(validarKonamiId('12345678901'), false); // 11 digits
   assert.equal(validarKonamiId('12345abcde'), false);
   assert.equal(validarKonamiId(''), false);
+});
+
+test('email: formato básico usuario@dominio.tld', () => {
+  assert.equal(validarEmail('duelista@gmail.com'), true);
+  assert.equal(validarEmail('  Duelista@Gmail.Com  '), true); // tolera padding y mayúsculas
+  assert.equal(validarEmail('con+alias@dominio.com.ar'), true);
+  assert.equal(validarEmail('sin-arroba.com'), false);
+  assert.equal(validarEmail('a@b'), false);            // sin TLD
+  assert.equal(validarEmail('dos espacios@x.com'), false);
+  assert.equal(validarEmail(''), false);
+  assert.equal(validarEmail(undefined), false);
 });
 
 test('comentario: opcional, máx 100 tras trim', () => {

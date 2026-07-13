@@ -1,8 +1,11 @@
 // BUTA TCG — backend de inscripciones.
 // Script VINCULADO a la planilla (Extensiones > Apps Script). Ver docs/setup-google-sheets.md
 // doPost: inscribe {torneo, nombre, konami_id, comentario?} · sube comprobante {action:'comprobante', torneo, konami_id, nombre, imagen_b64, mime}
-//         · sube decklist {action:'decklist', torneo, nombre, konami_id, archivo_b64, mime}.
-// doGet: ?action=count&torneo=X (conteo de uno) · ?action=counts (conteos y cupos de todos los próximos).
+//         · sube decklist {action:'decklist', torneo, nombre, konami_id, archivo_b64, mime} · anota email {action:'aviso', email}.
+// doGet: ?action=count&torneo=X (conteo de uno) · ?action=counts (conteos y cupos de todos los próximos)
+//        · ?action=baja&email=X&token=Y (baja de los avisos, link firmado que va en cada mail).
+// avisarNuevasFechas: corre solo cada 1 hora (disparador que instala instalarAvisos) y manda
+//   el aviso por email cuando aparece un torneo 'proximo' sin marcar en la columna aviso_enviado.
 
 // NOTA: el cliente web envía Content-Type text/plain a propósito — evita el preflight
 // CORS que Apps Script no soporta. No cambiar a application/json.
@@ -10,6 +13,8 @@
 const HOJA_TORNEOS = 'Torneos';
 const HOJA_INSCRIPCIONES = 'Inscripciones';
 const HOJA_DECKLISTS = 'Decklists';
+const HOJA_AVISOS = 'Avisos';
+const URL_TORNEOS_WEB = 'https://l4gash.github.io/buta-tcg-web/torneos.html';
 const CARPETA_COMPROBANTES = 'BUTA TCG - Comprobantes';
 const MAX_BYTES_COMPROBANTE = 1.5 * 1024 * 1024;
 const MIMES_COMPROBANTE = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
@@ -151,6 +156,118 @@ function guardarDecklist_(datos) {
   return json_({ ok: true, url: url });
 }
 
+// ---- Avisos de nueva fecha ----
+
+// Secreto para firmar los links de baja. Se genera solo la primera vez y
+// queda en las propiedades del script (no viaja en el código ni en la planilla).
+function secreto_() {
+  const props = PropertiesService.getScriptProperties();
+  let s = props.getProperty('AVISOS_SECRETO');
+  if (!s) {
+    s = Utilities.getUuid() + Utilities.getUuid();
+    props.setProperty('AVISOS_SECRETO', s);
+  }
+  return s;
+}
+
+// Firma corta del email: nadie puede dar de baja a otro sin conocer el secreto.
+function tokenDe_(email) {
+  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, email + secreto_());
+  return bytes.slice(0, 6).map(b => ((b + 256) % 256).toString(16).padStart(2, '0')).join('');
+}
+
+// Anota un email en la hoja Avisos (deduplicado, en minúsculas).
+function guardarAviso_(datos) {
+  const email = String(datos.email || '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    return json_({ ok: false, error: 'datos_invalidos' });
+  }
+  const avisos = filas_(HOJA_AVISOS);
+  const yaEstaba = avisos.rows.some(r => String(r.email || '').trim().toLowerCase() === email);
+  if (!yaEstaba) avisos.sheet.appendRow([new Date(), email]);
+  return json_({ ok: true, ya_estaba: yaEstaba });
+}
+
+// Da de baja un email si el token del link coincide. Devuelve una paginita
+// HTML (el jugador llega acá clickeando el link del mail, no desde la web).
+function darDeBaja_(p) {
+  const email = String(p.email || '').trim().toLowerCase();
+  const token = String(p.token || '');
+  const pagina = (titulo, texto) => HtmlService.createHtmlOutput(
+    '<body style="font-family:sans-serif;background:#05060f;color:#fff;display:grid;place-items:center;min-height:90vh;text-align:center">' +
+    '<div><h2>' + titulo + '</h2><p style="color:#8b93b8">' + texto + '</p></div></body>');
+  if (!email || tokenDe_(email) !== token) {
+    return pagina('Link inválido', 'El link de baja no es válido o está incompleto.');
+  }
+  const avisos = filas_(HOJA_AVISOS);
+  for (let i = avisos.rows.length - 1; i >= 0; i--) {
+    if (String(avisos.rows[i].email || '').trim().toLowerCase() === email) {
+      avisos.sheet.deleteRow(i + 2); // +2: la fila 1 es el encabezado
+    }
+  }
+  return pagina('Listo 🐗', 'No te mandamos más avisos. Si te arrepentís, anotate de nuevo en la web.');
+}
+
+// Corre cada 1 hora (disparador de instalarAvisos): busca torneos 'proximo'
+// sin marcar en la columna aviso_enviado y manda UN email por suscriptor
+// listando todas las fechas nuevas juntas (cuida la cuota diaria de Gmail).
+function avisarNuevasFechas() {
+  const t = filas_(HOJA_TORNEOS);
+  const col = t.header.indexOf('aviso_enviado');
+  if (col === -1) return; // columna no configurada: no hacemos nada
+
+  const pendientes = [];
+  t.rows.forEach(function (r, i) {
+    const est = String(r.estado).toLowerCase();
+    const esProximo = est.indexOf('proximo') === 0 || est.indexOf('próximo') === 0;
+    if (esProximo && !String(r.aviso_enviado || '').trim()) pendientes.push({ fila: i + 2, torneo: r });
+  });
+  if (!pendientes.length) return;
+
+  const subs = filas_(HOJA_AVISOS).rows
+    .map(r => String(r.email || '').trim().toLowerCase())
+    .filter(Boolean);
+
+  // Si no alcanza la cuota de hoy, no marcamos nada: se reintenta en la próxima corrida.
+  if (subs.length && MailApp.getRemainingDailyQuota() < subs.length) return;
+
+  const lineas = pendientes.map(function (p) {
+    const tt = p.torneo;
+    return '• ' + tt.nombre + '\n  ' + tt.fecha + ' · ' + tt.hora + ' hs · ' + tt.lugar +
+      (String(tt.precio || '').trim() ? '\n  Precio: ' + tt.precio : '');
+  }).join('\n\n');
+
+  const asunto = pendientes.length === 1
+    ? '🐗 Nueva fecha de BUTA TCG: ' + pendientes[0].torneo.nombre
+    : '🐗 ' + pendientes.length + ' fechas nuevas de BUTA TCG';
+  const urlScript = ScriptApp.getService().getUrl();
+
+  subs.forEach(function (email) {
+    const baja = urlScript + '?action=baja&email=' + encodeURIComponent(email) + '&token=' + tokenDe_(email);
+    const cuerpo = '¡Se viene torneo!\n\n' + lineas +
+      '\n\nInscribite en: ' + URL_TORNEOS_WEB +
+      '\n\n—\nBUTA TCG · Córdoba, Argentina\nPara dejar de recibir estos avisos: ' + baja;
+    try { MailApp.sendEmail(email, asunto, cuerpo); }
+    catch (err) { /* dirección rebotada/inválida: seguimos con el resto */ }
+  });
+
+  const marca = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
+  pendientes.forEach(function (p) { t.sheet.getRange(p.fila, col + 1).setValue(marca); });
+}
+
+// Ejecutá esta función UNA vez desde el editor (como autorizarDrive) para
+// instalar el disparador horario y autorizar el permiso de envío de mails.
+// Es idempotente: si ya había un disparador, lo reemplaza.
+function instalarAvisos() {
+  secreto_();
+  ScriptApp.getProjectTriggers()
+    .filter(tr => tr.getHandlerFunction() === 'avisarNuevasFechas')
+    .forEach(tr => ScriptApp.deleteTrigger(tr));
+  ScriptApp.newTrigger('avisarNuevasFechas').timeBased().everyHours(1).create();
+  Logger.log('Listo: cada 1 hora se revisa si hay fechas nuevas para avisar. Quedan ' +
+    MailApp.getRemainingDailyQuota() + ' mails de cuota hoy.');
+}
+
 function filas_(nombreHoja) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(nombreHoja);
   if (!sheet) throw new Error('Hoja no encontrada: ' + nombreHoja);
@@ -165,6 +282,9 @@ function contar_(torneo) {
 
 function doGet(e) {
   try {
+    if (e.parameter.action === 'baja') {
+      return darDeBaja_(e.parameter);
+    }
     // Convención: estado debe ser exactamente "proximo"/"próximo" (la web filtra por igualdad exacta).
     if (e.parameter.action === 'counts') {
       const proximos = filas_(HOJA_TORNEOS).rows.filter(function (r) {
@@ -204,6 +324,9 @@ function doPost(e) {
     }
     if (datos.action === 'decklist') {
       return guardarDecklist_(datos);
+    }
+    if (datos.action === 'aviso') {
+      return guardarAviso_(datos);
     }
 
     const nombre = String(datos.nombre || '').trim();

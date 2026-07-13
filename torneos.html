@@ -141,12 +141,33 @@
       </div>
     </section>
 
+    <!-- AVISOS DE NUEVA FECHA (oculta si no hay backend configurado) -->
+    <section id="seccion-avisos" class="py-8" hidden>
+      <div class="mx-auto max-w-3xl rounded-2xl border border-borde bg-tinta/70 p-6 text-center shadow-card sm:p-8">
+        <h2 class="font-display text-2xl font-bold italic text-white" style="letter-spacing:-0.03em;">🔔 Avisame cuando abra una nueva fecha</h2>
+        <p class="mx-auto mt-2 max-w-md font-body text-sm leading-[1.7] text-humo">Dejá tu email y te escribimos cuando se anuncie el próximo torneo. Nada de spam: solo fechas nuevas, y te podés dar de baja desde el mismo mail.</p>
+        <form id="form-avisos" class="mx-auto mt-5 flex max-w-md flex-col gap-3 sm:flex-row" novalidate>
+          <label for="aviso-email" class="sr-only">Tu email</label>
+          <input id="aviso-email" name="email" type="email" autocomplete="email" required aria-describedby="error-aviso-email" aria-invalid="false"
+            class="min-w-0 flex-1 rounded-full border border-borde bg-noche px-5 py-3 font-body text-sm text-white placeholder-humo/80 focus:border-primario"
+            placeholder="tu@email.com" />
+          <button type="submit" id="btn-avisar"
+            class="shrink-0 rounded-full bg-gradient-to-r from-primario to-violeta px-6 py-3 font-display text-sm font-bold italic text-white shadow-glow-azul hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
+            Avisame
+          </button>
+        </form>
+        <p id="error-aviso-email" data-error-for="aviso-email" role="alert" class="mt-2 hidden font-body text-sm text-red-400">Revisá el email: tiene que ser tipo tu@email.com.</p>
+        <p id="mensaje-avisos" role="status" aria-live="polite" class="mx-auto mt-3 hidden max-w-md rounded-lg px-4 py-3 font-body text-sm"></p>
+      </div>
+    </section>
+
   </main>
 
   <footer id="site-footer" class="mt-20 border-t border-borde/60 py-10"></footer>
 
   <script type="module" src="js/inscripcion.js"></script>
   <script type="module" src="js/decklist.js"></script>
+  <script type="module" src="js/avisos.js"></script>
 
 </body>
 </html>

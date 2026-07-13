@@ -129,6 +129,29 @@ en curso, y las anteriores quedan accesibles con un selector (sin perder nada).
 Ojo: el ranking de liga (la otra planilla) es de la temporada en curso — al cerrar una
 temporada, sacale una copia si querés conservar la tabla final antes de resetear los puntos.
 
+## Actualización v7 (avisos de nueva fecha por email)
+
+Los jugadores dejan su email en la web ("🔔 Avisame cuando abra una nueva fecha") y,
+cuando cargás un torneo nuevo con estado `proximo`, un robot les manda el aviso solo
+(revisa la planilla cada 1 hora). Cada mail lleva su link de baja.
+
+1. En la pestaña `Torneos`, escribí `aviso_enviado` en la celda M1 (a la derecha de
+   `decklist_habilitado`). NO la llenes vos: el script pone ahí la fecha/hora cuando
+   manda el aviso de ese torneo. (Si querés re-avisar un torneo, borrá esa celda.)
+2. Creá una pestaña nueva llamada EXACTO `Avisos` e importá `docs/sheets-template/avisos.csv`
+   (queda solo el encabezado `timestamp,email`; las suscripciones aparecen solas).
+3. Repegá TODO el `apps-script/Code.gs` actualizado en Extensiones → Apps Script y guardá.
+4. ⚠️ Implementar → Gestionar implementaciones → ✏️ Editar → Versión: **Nueva versión** → Implementar.
+5. **Instalá el robot** (una sola vez): en el editor de Apps Script, en el desplegable de
+   funciones elegí **`instalarAvisos`** y clic en **▶ Ejecutar**. Google va a pedir permisos
+   nuevos (enviar email como vos + administrar disparadores): aceptalos igual que hiciste
+   con `autorizarDrive`. Eso deja corriendo la revisión horaria.
+6. Los mails salen de tu cuenta de Google. La cuota gratuita es ~100 mails/día: si la lista
+   crece más que eso, el robot espera al día siguiente y reintenta solo (no se pierde nada).
+7. Para probar: anotá tu propio email en la web, cargá un torneo de prueba con estado
+   `proximo`, y en el editor ejecutá `avisarNuevasFechas` a mano (así no esperás la hora).
+   Te tiene que llegar el mail y la celda `aviso_enviado` de ese torneo queda marcada.
+
 ## Cargar resultados de un torneo (v4)
 
 1. En la pestaña `Resultados`, agregá una fila por cada jugador del top con: `torneo`
