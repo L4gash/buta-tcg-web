@@ -27,3 +27,13 @@ export function contarDecks(rows, max = 8) {
     pct: Math.round((cantidad / total) * 100),
   }));
 }
+
+// Ancho de barra (2-100) relativo al ítem más grande de la lista. Ojo: "Otros"
+// se agrega después de ordenar por deck individual, así que puede terminar
+// siendo el más grande de todos (varios decks minoritarios sumados superan al
+// deck más jugado) — hay que comparar contra el máximo real, no contra el
+// primero de la lista, o la barra más larga desborda el contenedor.
+export function anchoBarra(pct, decks) {
+  const maxPct = Math.max(...decks.map((d) => d.pct)) || 1;
+  return Math.max(2, Math.round((pct / maxPct) * 100));
+}

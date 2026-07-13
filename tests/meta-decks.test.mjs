@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { contarDecks } from '../js/meta-decks.js';
+import { contarDecks, anchoBarra } from '../js/meta-decks.js';
 
 const fila = (deck) => ({ deck });
 
@@ -31,4 +31,28 @@ test('contarDecks: pliega el excedente en "Otros"', () => {
 test('contarDecks: sin datos => vacío', () => {
   assert.deepEqual(contarDecks([]), []);
   assert.deepEqual(contarDecks([fila('—')]), []);
+});
+
+test('anchoBarra: "Otros" puede ser el máximo real (bug: desbordaba más de 100%)', () => {
+  // Caso real reproducido: Kewl Tune 9/16%, Otros 16/29% (suma de varios decks
+  // minoritarios que superan al deck individual más jugado).
+  const decks = [
+    { deck: 'Kewl Tune', cantidad: 9, pct: 16 },
+    { deck: 'Sky Striker', cantidad: 6, pct: 11 },
+    { deck: 'Otros', cantidad: 16, pct: 29 },
+  ];
+  assert.equal(anchoBarra(29, decks), 100); // el más largo SIEMPRE ocupa el 100%
+  assert.equal(anchoBarra(16, decks), Math.round((16 / 29) * 100));
+  assert.equal(anchoBarra(11, decks), Math.round((11 / 29) * 100));
+});
+
+test('anchoBarra: caso normal, el primero (mayor) ocupa el 100%', () => {
+  const decks = [{ deck: 'A', cantidad: 10, pct: 60 }, { deck: 'B', cantidad: 6, pct: 40 }];
+  assert.equal(anchoBarra(60, decks), 100);
+  assert.equal(anchoBarra(40, decks), Math.round((40 / 60) * 100));
+});
+
+test('anchoBarra: nunca por debajo del mínimo visible (2%)', () => {
+  const decks = [{ deck: 'A', cantidad: 100, pct: 95 }, { deck: 'B', cantidad: 1, pct: 1 }];
+  assert.equal(anchoBarra(1, decks), 2);
 });
