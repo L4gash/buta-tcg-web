@@ -1,10 +1,16 @@
 import { loadRanking, filtrarRanking, esc } from './data.js';
 import { coincideJugador, filtrarPorNombre } from './buscar.js';
 import { leerPerfilGuardado } from './perfil.js';
+import { zonaDe } from './ranking-zonas.js';
 
 const $ = (id) => document.getElementById(id);
 const MEDALLAS = { 1: '🥇', 2: '🥈', 3: '🥉' };
 const colorPos = { 1: 'text-oro', 2: 'text-[#c0c4d8]', 3: 'text-[#cd7f32]' };
+
+const BORDE_ZONA = {
+  clasifica: 'border-oro/50 bg-gradient-to-r from-oro/10 to-transparent',
+  repechaje: 'border-violeta/50 bg-gradient-to-r from-violeta/10 to-transparent',
+};
 
 // Nombre guardado tras una inscripción exitosa (para resaltar "tu" fila).
 let nombrePerfil = '';
@@ -14,8 +20,8 @@ function fila(r) {
   const medalla = MEDALLAS[pos] ?? '';
   const colPos = colorPos[pos] ?? 'text-humo';
   const esVos = coincideJugador(r.Jugador, nombrePerfil);
-  const oro = pos === 1 ? 'border-oro/50 bg-gradient-to-r from-oro/10 to-transparent' : 'border-borde';
-  const borde = esVos ? 'border-primario/60 bg-gradient-to-r from-primario/15 to-transparent' : oro;
+  const zona = BORDE_ZONA[zonaDe(pos)] ?? 'border-borde';
+  const borde = esVos ? 'border-primario/60 bg-gradient-to-r from-primario/15 to-transparent' : zona;
   const pl = esc(r['PL Totales'] ?? '0');
   const torneos = esc(r['Torneos Jugados'] ?? '');
   const fecha = esc(r['Ultima fecha'] ?? '');
