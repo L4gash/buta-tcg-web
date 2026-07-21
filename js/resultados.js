@@ -2,7 +2,7 @@ import { loadResultados, groupResultados, esc, tieneFoto, deckVisible } from './
 import { contarDecks, anchoBarra } from './meta-decks.js';
 import { extraerFechaCorta } from './fecha-torneo.js';
 import { coincideTexto } from './buscar.js';
-import { listaTemporadas, filasDeTemporada, resumenTemporada } from './temporadas.js';
+import { listaTemporadas, filasDeTemporada, resumenTemporada, temporadaDeTorneo } from './temporadas.js';
 
 const $ = (id) => document.getElementById(id);
 const src = (foto) => {
@@ -26,7 +26,7 @@ function tarjeta(r, destacada = false) {
   if (tieneFoto(r)) {
     const altText = `Decklist de ${esc(r.nombre)} (Top ${esc(r.puesto)})`;
     return `
-      <button type="button" data-foto="${esc(src(r.foto))}" data-alt="${altText}"
+      <button type="button" data-foto="${esc(src(r.foto))}" data-alt="${altText}" data-jugador="${esc(r.nombre)}"
         class="tarjeta-resultado group block w-full rounded-2xl border ${borde} bg-tinta/70 p-3 text-left hover:border-primario">
         <div class="foto-marco ${destacada ? 'h-72 sm:h-96' : 'h-56'} rounded-xl">
           <img src="${esc(src(r.foto))}" alt="${altText}" loading="${destacada ? 'eager' : 'lazy'}"${destacada ? ' fetchpriority="high"' : ''} class="h-full w-full rounded-xl object-cover object-top" />
@@ -206,7 +206,18 @@ if (!temporadas.length) {
     }
   });
 
-  verTemporada(temporadas.at(-1)); // arranca en la temporada actual (la última del CSV)
+  // Deep-link opcional desde el perfil: ?torneo=...&jugador=...
+  const params = new URLSearchParams(location.search);
+  const torneoParam = params.get('torneo');
+  const tempDeParam = torneoParam ? temporadaDeTorneo(todas, torneoParam) : null;
+
+  if (tempDeParam) {
+    verTemporada(tempDeParam);
+    seleccionar(torneoParam);
+    $('podio').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    verTemporada(temporadas.at(-1)); // arranca en la temporada actual (la última del CSV)
+  }
 }
 
 let ultimaTarjeta = null;
@@ -233,3 +244,10 @@ document.addEventListener('keydown', (e) => {
   // sin esto, Tab se escapa a la página de fondo con el modal abierto.
   if (e.key === 'Tab') { e.preventDefault(); $('cerrar-lightbox').focus(); }
 });
+
+// Si el deep-link trae un jugador y su decklist existe en el torneo abierto, la muestra.
+const jugadorParam = new URLSearchParams(location.search).get('jugador');
+if (jugadorParam) {
+  const card = document.querySelector(`.tarjeta-resultado[data-jugador="${window.CSS && CSS.escape ? CSS.escape(jugadorParam) : jugadorParam}"]`);
+  card?.click();
+}
