@@ -1,7 +1,7 @@
 import { loadResultados, groupResultados, esc, tieneFoto, deckVisible } from './data.js';
 import { contarDecks, anchoBarra } from './meta-decks.js';
 import { extraerFechaCorta } from './fecha-torneo.js';
-import { coincideTexto } from './buscar.js';
+import { coincideTexto, coincideJugador } from './buscar.js';
 import { listaTemporadas, filasDeTemporada, resumenTemporada, temporadaDeTorneo } from './temporadas.js';
 
 const $ = (id) => document.getElementById(id);
@@ -246,8 +246,11 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Si el deep-link trae un jugador y su decklist existe en el torneo abierto, la muestra.
+// Match flexible (ignora mayúsculas/tildes) por si el nombre difiere entre las
+// planillas de ranking y de resultados.
 const jugadorParam = new URLSearchParams(location.search).get('jugador');
 if (jugadorParam) {
-  const card = document.querySelector(`.tarjeta-resultado[data-jugador="${window.CSS && CSS.escape ? CSS.escape(jugadorParam) : jugadorParam}"]`);
+  const card = [...document.querySelectorAll('.tarjeta-resultado[data-jugador]')]
+    .find((c) => coincideJugador(c.dataset.jugador, jugadorParam));
   card?.click();
 }
