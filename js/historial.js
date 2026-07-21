@@ -58,3 +58,10 @@ export function estadisticasDe(historial) {
     promedioPuesto: puestos.length ? puestos.reduce((a, b) => a + b, 0) / puestos.length : null,
   };
 }
+
+// Medalla para el podio, "#n" para el resto, "—" si no hay puesto.
+export function medallaOPuesto(puesto) {
+  const MED = { 1: '🥇', 2: '🥈', 3: '🥉' };
+  if (puesto == null) return '—';
+  return MED[Number(puesto)] ?? `#${puesto}`;
+}

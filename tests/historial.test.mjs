@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { nombreDesdeParams, historialDe, estadisticasDe, historialPorTemporada, deckFavorito } from '../js/historial.js';
+import { nombreDesdeParams, historialDe, estadisticasDe, historialPorTemporada, deckFavorito, medallaOPuesto } from '../js/historial.js';
 
 test('nombreDesdeParams: lee y decodifica el parámetro', () => {
   assert.equal(nombreDesdeParams('?nombre=Juanny%20Gordillo'), 'Juanny Gordillo');
@@ -84,4 +84,13 @@ test('deckFavorito: el deck con más tops del historial', () => {
 test('deckFavorito: ignora decks vacíos o "—"; sin datos => null', () => {
   assert.equal(deckFavorito([{ torneo: 'A', puesto: '1', deck: '—' }, { torneo: 'B', puesto: '2', deck: '' }]), null);
   assert.equal(deckFavorito([]), null);
+});
+
+test('medallaOPuesto: medalla para 1-3, #n para el resto, — si null', () => {
+  assert.equal(medallaOPuesto(1), '🥇');
+  assert.equal(medallaOPuesto(2), '🥈');
+  assert.equal(medallaOPuesto(3), '🥉');
+  assert.equal(medallaOPuesto(5), '#5');
+  assert.equal(medallaOPuesto(null), '—');
+  assert.equal(medallaOPuesto(undefined), '—');
 });

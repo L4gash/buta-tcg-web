@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { TEMPORADA_DEFECTO, temporadaDe, listaTemporadas, filasDeTemporada, resumenTemporada } from '../js/temporadas.js';
+import { TEMPORADA_DEFECTO, temporadaDe, listaTemporadas, filasDeTemporada, resumenTemporada, temporadaDeTorneo } from '../js/temporadas.js';
 
 const fila = (torneo, puesto, nombre, deck = '', temporada = '') => ({ torneo, puesto, nombre, deck, temporada });
 
@@ -52,4 +52,16 @@ test('resumenTemporada: sin decks cargados ("—" o vacío) => deckDominante nul
 
 test('resumenTemporada: vacía => todo en cero/null', () => {
   assert.deepEqual(resumenTemporada([]), { fechas: 0, jugadores: 0, masCampeonatos: null, deckDominante: null });
+});
+
+test('temporadaDeTorneo: devuelve la temporada del torneo, o null', () => {
+  const rows = [
+    { torneo: 'Fecha Vieja', puesto: '1', nombre: 'A' },
+    { torneo: 'Fecha Vieja', puesto: '2', nombre: 'B' },
+    { torneo: 'Fecha Nueva', puesto: '1', nombre: 'A', temporada: 'Temporada 2' },
+  ];
+  assert.equal(temporadaDeTorneo(rows, 'Fecha Vieja'), 'Temporada 1');
+  assert.equal(temporadaDeTorneo(rows, 'Fecha Nueva'), 'Temporada 2');
+  assert.equal(temporadaDeTorneo(rows, 'No Existe'), null);
+  assert.equal(temporadaDeTorneo([], 'x'), null);
 });

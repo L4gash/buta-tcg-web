@@ -28,6 +28,12 @@ export function filasDeTemporada(rows, temporada) {
   return (rows ?? []).filter((r) => temporadaDe(r) === temporada);
 }
 
+// La temporada a la que pertenece un torneo (primera fila que coincide), o null.
+export function temporadaDeTorneo(rows, torneo) {
+  const fila = (rows ?? []).find((r) => r?.torneo === torneo);
+  return fila ? temporadaDe(fila) : null;
+}
+
 // Los números de una temporada (para el panel de resumen/cierre):
 // fechas jugadas, jugadores únicos en los tops, quién ganó más veces y el
 // deck con más presencia en los tops.
