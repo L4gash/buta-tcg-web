@@ -22,7 +22,7 @@ function fila(r) {
   const esVos = coincideJugador(r.Jugador, nombrePerfil);
   const zona = BORDE_ZONA[zonaDe(pos)] ?? 'border-borde';
   const borde = esVos ? 'border-primario/60 bg-gradient-to-r from-primario/15 to-transparent' : zona;
-  const pl = esc(r['PL Totales'] ?? '0');
+  const pl = esc(r['PL Totales'] || '0');
   const torneos = esc(r['Torneos Jugados'] ?? '');
   const fecha = esc(r['Ultima fecha'] ?? '');
   const nombre = esc(r.Jugador ?? '');

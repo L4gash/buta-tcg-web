@@ -91,14 +91,14 @@ if (!nombre) {
       const promedioTexto = stats.promedioPuesto == null ? '—' : stats.promedioPuesto.toFixed(1);
       const chips = [
         filaRanking ? chip(`#${esc(filaRanking.Pos)}`, 'Ranking') : '',
-        filaRanking ? chip(esc(filaRanking['PL Totales'] ?? '0'), 'Puntos de liga') : '',
-        filaRanking ? chip(esc(filaRanking['Torneos Jugados'] ?? '0'), 'Torneos jugados') : '',
-        filaRanking ? chip(esc(filaRanking['Victorias'] ?? '0'), 'Victorias') : '',
-        chip(stats.fechas, stats.fechas === 1 ? 'Top 8' : 'Top 8'),
+        filaRanking ? chip(esc(filaRanking['PL Totales'] || '0'), 'Puntos de liga') : '',
+        filaRanking ? chip(esc(filaRanking['Torneos Jugados'] || '0'), 'Torneos jugados') : '',
+        filaRanking ? chip(esc(filaRanking['Victorias'] || '0'), 'Victorias') : '',
+        chip(stats.fechas, 'Top 8'),
         chip(stats.campeonatos, stats.campeonatos === 1 ? 'Campeonato' : 'Campeonatos'),
         chip(stats.podios, 'Podios'),
         chip(medallaOPuesto(stats.mejorPuesto), 'Mejor resultado'),
-        chip(promedioTexto, 'Promedio de puesto'),
+        chip(promedioTexto, 'Promedio'),
       ].filter(Boolean).join('');
 
       const zona = filaRanking ? zonaDe(Number(filaRanking.Pos)) : null;
