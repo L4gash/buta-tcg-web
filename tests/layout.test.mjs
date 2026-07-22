@@ -2,9 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { navHtml, footerHtml, paginaActiva, flechaVolverHtml, PAGINAS } from '../js/layout.js';
 
-test('PAGINAS incluye las 6 páginas del sitio', () => {
+test('PAGINAS incluye las 7 páginas del sitio', () => {
   assert.deepEqual(PAGINAS.map((p) => p.archivo), [
-    'index.html', 'torneos.html', 'resultados.html', 'ranking.html', 'jugadores.html', 'nosotros.html',
+    'index.html', 'torneos.html', 'resultados.html', 'ranking.html', 'jugadores.html', 'records.html', 'nosotros.html',
   ]);
 });
 
