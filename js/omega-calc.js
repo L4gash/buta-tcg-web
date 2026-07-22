@@ -12,7 +12,7 @@ const TIERS = [
   { min: 350, nombre: 'Gold', clase: 'text-oro bg-oro/15' },
   { min: 200, nombre: 'Silver', clase: 'text-slate-300 bg-slate-300/10' },
   { min: 50, nombre: 'Bronze', clase: 'text-amber-600 bg-amber-600/10' },
-  { min: 0, nombre: 'Iron', clase: 'text-zinc-400 bg-zinc-400/10' },
+  { min: -Infinity, nombre: 'Iron', clase: 'text-zinc-400 bg-zinc-400/10' }, // atrapa cualquier rating (incl. 0 o negativo)
 ];
 
 export function tierDeRating(rating) {
@@ -29,7 +29,10 @@ export function winRate(wins, loses) {
 
 export function construirLeaderboard(rows) {
   return (rows ?? [])
-    .filter((r) => String(r?.estado ?? '').trim().toLowerCase() === 'ok' && Number.isFinite(Number(r?.rating)))
+    // Solo filas listas: estado "ok" Y un rating cargado (no vacío). Una celda de
+    // rating en blanco con estado "ok" NO cuenta (evita un fantasma rating 0 / Iron).
+    .filter((r) => String(r?.estado ?? '').trim().toLowerCase() === 'ok'
+      && String(r?.rating ?? '').trim() !== '' && Number.isFinite(Number(r?.rating)))
     .map((r) => {
       const wins = Number(r.wins) || 0;
       const loses = Number(r.loses) || 0;
