@@ -57,21 +57,21 @@ test('navHtml: "Pedidos" nunca lleva aria-current (no es una página del sitio)'
   assert.ok(!enlacePedidos.includes('aria-current'));
 });
 
-test('navHtml: "Pedidos" queda entre Jugadores y Nosotros', () => {
+test('navHtml: "Pedidos" queda entre Cara a cara y Nosotros', () => {
   const html = navHtml('index.html');
-  const posJugadores = html.indexOf('>Jugadores<');
+  const posCaraACara = html.indexOf('>Cara a cara<');
   const posPedidos = html.indexOf('>Pedidos<');
   const posNosotros = html.indexOf('>Nosotros<');
-  assert.ok(posJugadores < posPedidos && posPedidos < posNosotros);
+  assert.ok(posCaraACara < posPedidos && posPedidos < posNosotros);
 });
 
-test('navHtml: el orden final es Ranking, Jugadores, Pedidos, Nosotros', () => {
+test('navHtml: el orden final es Récords, Cara a cara, Pedidos, Nosotros', () => {
   const html = navHtml('index.html');
-  const posRanking = html.indexOf('>Ranking<');
-  const posJugadores = html.indexOf('>Jugadores<');
+  const posRecords = html.indexOf('>Récords<');
+  const posCaraACara = html.indexOf('>Cara a cara<');
   const posPedidos = html.indexOf('>Pedidos<');
   const posNosotros = html.indexOf('>Nosotros<');
-  assert.ok(posRanking < posJugadores && posJugadores < posPedidos && posPedidos < posNosotros);
+  assert.ok(posRecords < posCaraACara && posCaraACara < posPedidos && posPedidos < posNosotros);
 });
 
 test('flechaVolverHtml: vacía en index.html (ya está en el inicio)', () => {

@@ -48,13 +48,13 @@ export function flechaVolverHtml(archivo) {
   return `<a href="${href}" class="inline-flex items-center gap-1.5 font-body text-sm text-humo hover:text-primario-glow">← ${etiqueta}</a>`;
 }
 
-// Las 7 entradas del nav (6 páginas + Pedidos) en orden final, marcando cuál
-// está activa. Pedidos va justo después de Jugadores y nunca es "activa"
-// (no es una página del sitio: la administra Mariano, fuera de este repo).
+// Las entradas del nav (páginas + Pedidos) en orden final, marcando cuál está
+// activa. Pedidos va justo después de Cara a cara (antes de Nosotros) y nunca
+// es "activa" (no es una página del sitio: la administra Mariano, fuera de este repo).
 function itemsNav(activa) {
   return PAGINAS.flatMap(({ archivo, etiqueta }) => {
     const item = { href: archivo, etiqueta, esActiva: archivo === activa, externo: false };
-    return archivo === 'jugadores.html'
+    return archivo === 'cara-a-cara.html'
       ? [item, { href: ENLACE_PEDIDOS.href, etiqueta: ENLACE_PEDIDOS.etiqueta, esActiva: false, externo: true }]
       : [item];
   });
