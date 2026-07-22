@@ -8,6 +8,7 @@ export const PAGINAS = [
   { archivo: 'torneos.html', etiqueta: 'Torneos' },
   { archivo: 'resultados.html', etiqueta: 'Resultados' },
   { archivo: 'ranking.html', etiqueta: 'Ranking' },
+  { archivo: 'omega.html', etiqueta: 'Omega' },
   { archivo: 'jugadores.html', etiqueta: 'Jugadores' },
   { archivo: 'records.html', etiqueta: 'Récords' },
   { archivo: 'cara-a-cara.html', etiqueta: 'Cara a cara' },

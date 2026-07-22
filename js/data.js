@@ -1,5 +1,5 @@
 import { parseCsv } from './csv.js';
-import { TORNEOS_CSV_URL, RESULTADOS_CSV_URL, RANKING_CSV_URL } from './config.js';
+import { TORNEOS_CSV_URL, RESULTADOS_CSV_URL, RANKING_CSV_URL, OMEGA_CSV_URL } from './config.js';
 
 // ---- Datos de respaldo (se muestran si la planilla no está configurada o no responde) ----
 export const FALLBACK_TORNEOS = [{
@@ -88,6 +88,12 @@ export const FALLBACK_RANKING = [
 export const filtrarRanking = (rows) => rows.filter((r) => String(r?.Jugador ?? '').trim() !== '');
 
 export const loadRanking = () => fetchCsv(RANKING_CSV_URL, FALLBACK_RANKING);
+
+// ---- Leaderboard de Omega (Duelists Unite) ----
+// Sin datos de respaldo: si la planilla no está configurada, la página muestra
+// su estado vacío (no inventamos jugadores).
+export const FALLBACK_OMEGA = [];
+export const loadOmega = () => fetchCsv(OMEGA_CSV_URL, FALLBACK_OMEGA);
 
 // ---- Utilidad de render ----
 // Escapa texto antes de interpolarlo en innerHTML (los datos vienen de la planilla de BUTA,
