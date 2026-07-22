@@ -14,6 +14,8 @@ const HOJA_TORNEOS = 'Torneos';
 const HOJA_INSCRIPCIONES = 'Inscripciones';
 const HOJA_DECKLISTS = 'Decklists';
 const HOJA_AVISOS = 'Avisos';
+const HOJA_OMEGA = 'Omega';
+const OMEGA_API = 'https://duelistsunite.org/omega-web/v3/profile?id=';
 const URL_TORNEOS_WEB = 'https://l4gash.github.io/buta-tcg-web/torneos.html';
 const CARPETA_COMPROBANTES = 'BUTA TCG - Comprobantes';
 const MAX_BYTES_COMPROBANTE = 1.5 * 1024 * 1024;
@@ -266,6 +268,57 @@ function instalarAvisos() {
   ScriptApp.newTrigger('avisarNuevasFechas').timeBased().everyHours(1).create();
   Logger.log('Listo: cada 1 hora se revisa si hay fechas nuevas para avisar. Quedan ' +
     MailApp.getRemainingDailyQuota() + ' mails de cuota hoy.');
+}
+
+// ---- Leaderboard de Omega (Duelists Unite) ----
+// Recorre la hoja "Omega": por cada fila con un link de perfil, saca el Discord ID,
+// pega a la API pública de Omega (server-side, sin CORS) y escribe rating/W/L/estado.
+// El admin solo carga la columna `link` (y opcional `nombre_buta`); el resto lo llena esto.
+function refrescarOmega() {
+  const om = filas_(HOJA_OMEGA);
+  const cols = ['link', 'id', 'nombre', 'rating', 'wins', 'loses', 'draws', 'lastlogin', 'actualizado', 'estado'];
+  const idx = {};
+  cols.forEach(function (c) { idx[c] = om.header.indexOf(c); });
+  if (idx.link === -1) return; // hoja sin la columna link: no hacemos nada
+
+  om.rows.forEach(function (r, i) {
+    const fila = i + 2; // +2: la fila 1 es el encabezado
+    const set = function (col, val) { if (idx[col] !== -1) om.sheet.getRange(fila, idx[col] + 1).setValue(val); };
+    const link = String(r.link || '').trim();
+    if (!link) return;
+    const m = link.match(/profile\/(\d+)/) || link.match(/(\d{15,})/);
+    if (!m) { set('estado', 'link inválido'); return; }
+    const id = m[1];
+    try {
+      const res = UrlFetchApp.fetch(OMEGA_API + encodeURIComponent(id), { muteHttpExceptions: true });
+      if (res.getResponseCode() !== 200) { set('estado', 'http ' + res.getResponseCode()); return; }
+      const payload = JSON.parse(res.getContentText());
+      const data = payload && payload.data;
+      if (!data || data.success === false) { set('estado', 'sin datos'); return; }
+      set('id', "'" + id); // apóstrofe: Sheets guarda el ID largo como texto, no como número
+      set('nombre', celdaSegura_(String(data.displayname || data.username || '')));
+      set('rating', Math.round(Number(data.tcgrating) || 0));
+      set('wins', Number(data.tcgwins) || 0);
+      set('loses', Number(data.tcgloses) || 0);
+      set('draws', Number(data.tcgdraws) || 0);
+      set('lastlogin', String(data.lastlogin || ''));
+      set('actualizado', Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm'));
+      set('estado', 'ok');
+    } catch (err) {
+      set('estado', 'error');
+    }
+  });
+}
+
+// Ejecutá esta función UNA vez desde el editor (como instalarAvisos) para instalar
+// el disparador que refresca Omega cada 12 h y correrlo una vez ahora. Idempotente.
+function instalarOmega() {
+  ScriptApp.getProjectTriggers()
+    .filter(function (tr) { return tr.getHandlerFunction() === 'refrescarOmega'; })
+    .forEach(function (tr) { ScriptApp.deleteTrigger(tr); });
+  ScriptApp.newTrigger('refrescarOmega').timeBased().everyHours(12).create();
+  refrescarOmega();
+  Logger.log('Omega: refresco instalado (cada 12 h) y ejecutado una vez.');
 }
 
 function filas_(nombreHoja) {

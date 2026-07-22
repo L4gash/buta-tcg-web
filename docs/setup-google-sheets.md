@@ -152,6 +152,29 @@ cuando cargás un torneo nuevo con estado `proximo`, un robot les manda el aviso
    `proximo`, y en el editor ejecutá `avisarNuevasFechas` a mano (así no esperás la hora).
    Te tiene que llegar el mail y la celda `aviso_enviado` de ese torneo queda marcada.
 
+## Actualización v8 (leaderboard de Omega)
+
+Una página **Omega** que lista el rating de YGO Omega (Duelists Unite) de los jugadores
+de la comunidad. Vos pegás el link del perfil de Omega de cada uno; un robot refresca
+rating/wins/losses solo (cada 12 h) tirando de la API pública de Omega.
+
+1. Creá una pestaña nueva llamada EXACTO `Omega` con estos encabezados en la fila 1, en
+   este orden: `link | nombre_buta | id | nombre | rating | wins | loses | draws | lastlogin | actualizado | estado`.
+   Vos solo cargás `link` (y opcional `nombre_buta`, el nombre de la liga para linkear al
+   perfil BUTA); el resto lo completa el robot.
+2. Publicá esa pestaña como CSV: Archivo → Compartir → Publicar en la web → elegí la hoja
+   `Omega` y formato CSV → Publicar. Copiá la URL.
+3. Pegá esa URL en `OMEGA_CSV_URL` dentro de `js/config.js` (reemplazando el `''`).
+4. Repegá TODO el `apps-script/Code.gs` actualizado en Extensiones → Apps Script y guardá.
+5. **Instalá el robot** (una sola vez): en el editor de Apps Script elegí la función
+   **`instalarOmega`** y clic en **▶ Ejecutar**. Google pide un permiso nuevo (conectarse a
+   un servicio externo, para leer la API de Omega): aceptalo. Queda refrescando cada 12 h y
+   corre una vez en el momento.
+6. **Sumar un jugador:** pegá el link de su perfil de Omega
+   (`tournament.duelistsunite.org/#/profile/…`) en la columna `link`. En el próximo refresco
+   (o corriendo `refrescarOmega` a mano) se completan nombre/rating/W-L y la columna `estado`
+   queda en `ok`. Si el link está mal, `estado` te avisa.
+
 ## Cargar resultados de un torneo (v4)
 
 1. En la pestaña `Resultados`, agregá una fila por cada jugador del top con: `torneo`
