@@ -31,7 +31,7 @@ test('navHtml: marca la página activa con aria-current (en el nav de escritorio
   assert.equal(html.match(/aria-current/g).length, 2);
 });
 
-test('navHtml: contiene los 6 links de página, duplicados entre escritorio y celular', () => {
+test('navHtml: contiene los links de página, duplicados entre escritorio y celular', () => {
   const html = navHtml('torneos.html'); // activa distinta de index.html: el logo no se cuenta doble
   for (const p of PAGINAS) {
     const esperadas = p.archivo === 'index.html' ? 3 : 2; // index.html: + 1 por el link del logo

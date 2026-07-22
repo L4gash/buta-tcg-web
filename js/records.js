@@ -4,7 +4,6 @@ import { calcularRecords } from './records-calc.js';
 const $ = (id) => document.getElementById(id);
 const MEDALLAS = ['🥇', '🥈', '🥉'];
 const fmtEntero = (v) => String(v);
-const fmtValor = (v) => (typeof v === 'number' && !Number.isInteger(v) ? v.toFixed(1) : String(v));
 
 function podio(items, formato = fmtEntero) {
   if (!items.length) return '<p class="border-t border-borde px-4 py-6 text-center font-body text-humo">Todavía no hay suficientes datos.</p>';
