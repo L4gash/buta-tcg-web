@@ -1,11 +1,10 @@
 import { loadResultados, loadRanking, esc } from './data.js';
 import { listaJugadores } from './directorio-jugadores.js';
 import { coincideJugador } from './buscar.js';
+import { medallaOPuesto } from './historial.js';
 import { caraACara } from './cara-a-cara-calc.js';
 
 const $ = (id) => document.getElementById(id);
-const MEDALLAS = { 1: '🥇', 2: '🥈', 3: '🥉' };
-const puestoTxt = (p) => (MEDALLAS[p] ?? `#${p}`);
 
 const [resultados, rankingRows] = await Promise.all([loadResultados(), loadRanking()]);
 const jugadores = listaJugadores(resultados, rankingRows);
@@ -40,9 +39,9 @@ function bloqueCoincidencias(a, b, c) {
     const aArriba = t.puestoA < t.puestoB;
     return `
       <a href="resultados.html?torneo=${encodeURIComponent(t.torneo)}" class="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-t border-borde px-4 py-3 hover:bg-primario/5">
-        <span class="font-display text-base font-bold ${aArriba ? 'text-primario-glow' : 'text-humo'}">${puestoTxt(t.puestoA)}</span>
+        <span class="font-display text-base font-bold ${aArriba ? 'text-primario-glow' : 'text-humo'}"><span class="sr-only">${esc(a.nombre)}: puesto ${t.puestoA}</span><span aria-hidden="true">${medallaOPuesto(t.puestoA)}</span></span>
         <span class="min-w-0 truncate text-center font-body text-sm text-white">${esc(t.torneo)}</span>
-        <span class="text-right font-display text-base font-bold ${!aArriba ? 'text-primario-glow' : 'text-humo'}">${puestoTxt(t.puestoB)}</span>
+        <span class="text-right font-display text-base font-bold ${!aArriba ? 'text-primario-glow' : 'text-humo'}"><span class="sr-only">${esc(b.nombre)}: puesto ${t.puestoB}</span><span aria-hidden="true">${medallaOPuesto(t.puestoB)}</span></span>
       </a>`;
   }).join('');
   return `
@@ -94,6 +93,6 @@ function render() {
 const params = new URLSearchParams(location.search);
 if (params.get('a')) $('jugador-a').value = resolver(params.get('a')) || params.get('a');
 if (params.get('b')) $('jugador-b').value = resolver(params.get('b')) || params.get('b');
-$('jugador-a').addEventListener('change', render);
-$('jugador-b').addEventListener('change', render);
+$('jugador-a').addEventListener('input', render);
+$('jugador-b').addEventListener('input', render);
 render();
